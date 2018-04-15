@@ -4,17 +4,17 @@
 
 Centrifugal [organization](https://github.com/centrifugal)给你的网站/移动/桌面应用提供一系列工具来增加实时特性。当你需要为你的应用添加实时事件时，它通过整合多个库来带给你开箱即用的体验。
 
-使用指南可以使用你喜爱的语言来创建IM， 实时图表，提醒，各种计数甚至游戏 – [实时消息服务端](server/README.md), [javascript浏览器客户端](client/README.md) and [客户端API库](libraries/README.md) 。
+使用指南可以使用你喜爱的语言来创建IM， 实时图表，提醒，各种计数甚至游戏 – [实时消息服务端](server/README.md), [javascript浏览器客户端](client/README.md) 和 [客户端API库](libraries/README.md) 。
 
-Centrifugo server easily integrates with your existing application – no need to change your project architecture and philosophy to get real-time events. Centrifugo server is language agnostic – its API can be used from any programming language. For some popular programming languages (see below) we provide helper libraries, but protocol is open and simple - so it's possible to create your own wrapper.
+Centrifugo服务端与你现有的应用可以轻松整合 - 无须改变你的项目结构和逻辑就可以得到实时事件。 Centrifugo服务端的调用是跨语言的 – 它的API可以使用任何语言来调用，协议是开放并且简单易懂的。我们已经为某些流行语言提供了基础库（看下面），你也可以使用你喜爱的语言自行实现。
 
-On client side users of your application communicate with real-time Centrifugo over Websocket or [SockJS](https://github.com/sockjs/sockjs-client) library protocol. SockJS fallback transports provide real-time messaging support even in old (like IE 8) or mobile browsers.
+你应用中的终端用户可以通过Websocket 或 [SockJS](https://github.com/sockjs/sockjs-client)协议库与Centrifugo服务端通信. SockJS的回溯传输甚至为旧的浏览器或手机浏览器（比如IE 8）提供了实时消息支持。
 
-### Simplified scheme
+### 简化的架构
 
-![scheme](https://raw.githubusercontent.com/centrifugal/documentation/master/assets/images/scheme.png)
+![架构](https://raw.githubusercontent.com/centrifugal/documentation/master/assets/images/scheme.png)
 
-### Our projects
+### 我们的项目
 
 Let's see which projects Centrifugal organization has:
 
