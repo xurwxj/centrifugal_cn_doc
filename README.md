@@ -1,10 +1,10 @@
-## Centrifugo real-time messaging server and its friends
+## Centrifugo实时消息服务端
 
-![Centrifugal intro](https://raw.githubusercontent.com/centrifugal/documentation/master/assets/images/intro.png)
+![Centrifugal介绍](https://raw.githubusercontent.com/centrifugal/documentation/master/assets/images/intro.png)
 
-Centrifugal [organization](https://github.com/centrifugal) provides a set of tools to add real-time features to your web/mobile/desktop application. It brings together several repositories linked by a common purpose – give you a complete and ready to use solution when you want to add real-time events into your application.
+Centrifugal [organization](https://github.com/centrifugal)给你的网站/移动/桌面应用提供一系列工具来增加实时特性。当你需要为你的应用添加实时事件时，它通过整合多个库来带给你开箱即用的体验。
 
-Chats, real-time charts, notifications, various counters and even games can be built using our instruments – [real-time messaging server](server/README.md), [javascript browser client](client/README.md) and [client API libraries](libraries/README.md) for your favorite language.
+使用指南可以使用你喜爱的语言来创建IM， 实时图表，提醒，各种计数甚至游戏 – [实时消息服务端](server/README.md), [javascript浏览器客户端](client/README.md) and [客户端API库](libraries/README.md) 。
 
 Centrifugo server easily integrates with your existing application – no need to change your project architecture and philosophy to get real-time events. Centrifugo server is language agnostic – its API can be used from any programming language. For some popular programming languages (see below) we provide helper libraries, but protocol is open and simple - so it's possible to create your own wrapper.
 
