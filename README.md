@@ -16,68 +16,52 @@ Centrifugo服务端与你现有的应用可以轻松整合 - 无须改变你的�
 
 ### 我们的项目
 
-Let's see which projects Centrifugal organization has:
+Centrifugal开发的项目有以下:
 
-* [centrifugo](https://github.com/centrifugal/centrifugo) - real-time messaging server
-    written in Go language
-* [centrifuge-js](https://github.com/centrifugal/centrifuge-js) - Javascript client to
-    connect to messaging server from web browser.
-* [centrifuge-android](https://github.com/centrifugal/centrifuge-android) - Java library to communicate
-    with Centrifugo client API over Websockets from Android devices.
-* [centrifuge-ios](https://github.com/centrifugal/centrifuge-ios) - Swift library to communicate
-    with Centrifugo client API over Websockets from iOS devices.
-* [centrifuge-go](https://github.com/centrifugal/centrifuge-go) - Go library to communicate
-    with Centrifugo client API over Websockets from Go apps.
-* [centrifuge-mobile](https://github.com/centrifugal/centrifuge-go) - Go client and experimental
-    bindings generated for iOS and Android using gomobile project.
-* [centrifuge-python](https://github.com/centrifugal/centrifuge-go) - Python client for Centrifugo on
-    top of asyncio library (work in progress).
-* [cent](https://github.com/centrifugal/cent) - Python tools to communicate with Centrifugo API.
-* [adjacent](https://github.com/centrifugal/adjacent) - a small wrapper over Cent to
-    simplify real-time server integration with Django framework.
-* [rubycent](https://github.com/centrifugal/rubycent) - Ruby gem to communicate
-    with Centrifugo server API.
-* [phpcent](https://github.com/centrifugal/phpcent) - PHP client to communicate
-    with Centrifugo server API.
-* [gocent](https://github.com/centrifugal/gocent) - Go client to communicate
-    with Centrifugo server API.
-* [jscent](https://github.com/centrifugal/jscent) - NodeJS client to communicate
-    with Centrifugo server API.
-* [web](https://github.com/centrifugal/web) - admin web interface for Centrifugo.
-    Built on ReactJS.
+* [centrifugo](https://github.com/centrifugal/centrifugo) - Go语言实现的实时消息服务端
+* [centrifuge-js](https://github.com/centrifugal/centrifuge-js) - 浏览器端用Javascript实现的连接centrifugo库
+* [centrifuge-android](https://github.com/centrifugal/centrifuge-android) - Android设备基于Java实现Websocket的连接centrifugo库
+* [centrifuge-ios](https://github.com/centrifugal/centrifuge-ios) - IOS设备基于Swift 实现Websocket的连接centrifugo库
+* [centrifuge-go](https://github.com/centrifugal/centrifuge-go) - 基于Go语言实现Websocket的连接centrifugo库
+* [centrifuge-mobile](https://github.com/centrifugal/centrifuge-go) - 基于Go语言gomobile项目实现Websocket的连接centrifugo库，可用于IOS和Android
+* [centrifuge-python](https://github.com/centrifugal/centrifuge-go) - 基于Python异步库实现Websocket的连接centrifugo库（正在开发中）
+* [cent](https://github.com/centrifugal/cent) - Python工具，使用Centrifugo API
+* [adjacent](https://github.com/centrifugal/adjacent) - 基于Cent的小工具用于Django中简单整合实时消息服务端
+* [rubycent](https://github.com/centrifugal/rubycent) - 基于Ruby和Centrifugo server API实现的库
+* [phpcent](https://github.com/centrifugal/phpcent) - 基于PHP和Centrifugo server API实现的库
+* [gocent](https://github.com/centrifugal/gocent) - 基于Go语言和Centrifugo server API实现的库
+* [jscent](https://github.com/centrifugal/jscent) - 基于NodeJS和Centrifugo server API实现的库
+* [web](https://github.com/centrifugal/web) - Centrifugo的管理网站，基于ReactJS开发
 
-### Demo
+### 演示站点
 
-We maintain actual [demo of Centrifugo server instance](https://centrifugo.herokuapp.com) on Heroku (password `demo`).
+我们在Heroku上建立了[Centrifugo服务演示实例和管理站点](https://centrifugo.herokuapp.com)(密码是 `demo`).
 
-You can use it to discover Centrifugo without installing it on your computer.
+你可以在安装到你的环境之前先体验Centrifugo。
 
-There are 3 endpoints of demo available:
+演示站点提供3种客户端连接方式，不管是用客户端还是API库都可以连接:
 
 * wss://centrifugo.herokuapp.com/connection/websocket - raw Websocket endpoint
 * https://centrifugo.herokuapp.com/connection - SockJS endpoint
 * https://centrifugo.herokuapp.com/api/ - HTTP API endpoint
 
-So you can use our client and API libraries to communicate with this demo.
+### 例子
 
-### Examples
+可以在[Github](https://github.com/centrifugal/examples)上找到代码样例.
 
-Examples can be found [in repo on Github](https://github.com/centrifugal/examples).
+目前我们提供了以下代码样例:
 
-At moment we have the following examples:
+* django – 展示如何整合Django和Centrifugal
+* Tornado应用 – 展示一些常用方法来整合Centrifugal和Tornado - token生成, 私有channel登录
+* NodeJS例子 - 展示如何整合Centrifugo和NodeJS后端
+* WebRTC聊天 - 展示如何把Centrifugo作为WebRTC signaling server来创建点对点通信
+* insecure – 展示如何在不安全的环境下独立运行Centrifugo
+* jsfiddle – [jsfiddle的聊天样例](http://jsfiddle.net/FZambia/yG7Uw/)，使用部署在Heroku[demo](https://centrifugo.herokuapp.com) 上的Centrifugo，预定义的用户ID， 时间戳和token 
 
-* django – example shows how to integrate Django application with Centrifugal stack
-* Tornado application – shows some general aspects of Centrifugal stack using Tornado server - token generation, private channel signing.
-* NodeJS example - shows how to integrate Centrifugo with NodeJS based backend
-* WebRTC chat - shows how to use Centrifugo as WebRTC signaling server to create peer-to-peer communication.
-* insecure – example shows how to use Centrifugo running in insecure mode without any web application backend.
-* jsfiddle – [simplified chat example on jsfiddle](http://jsfiddle.net/FZambia/yG7Uw/) with predefined user ID, timestamp and token which uses Centrifugo [demo](https://centrifugo.herokuapp.com) instance on Heroku
+### 社区开发的与Centrifugo相关的项目:
 
-### Community-driven Centrifugo related projects:
-
-* https://github.com/synw/centcli - Terminal client for Centrifugo
-* https://github.com/LaraComponents/centrifuge-broadcaster - Broadcast driver for Laravel framework
-    to communicate with Centrifugo server API.
-* https://github.com/synw/django-instant - Websockets for Django
+* https://github.com/synw/centcli - Centrifugo终端客户端
+* https://github.com/LaraComponents/centrifuge-broadcaster - Laravel框架整合Centrifugo server API的广播驱动
+* https://github.com/synw/django-instant - Django的Websockets实现 
 
 {% include "SUMMARY.md" %}
