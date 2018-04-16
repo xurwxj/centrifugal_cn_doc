@@ -1,8 +1,8 @@
-# Important configuration settings
+# 重要配置说明
 
-As I wrote in previous chapter configuration file must have one required option: `secret`.
+正如我在前面章节所说，配置文件必须至少包括一个`secret`选项。
 
-The configuration file looks like this:
+最小化的配置文件看起来如下面一样:
 
 ```javascript
 {
@@ -10,13 +10,11 @@ The configuration file looks like this:
 }
 ```
 
-**The only two who should know this secret key is Centrifugo itself and your web application
-backend**. It is used to generate client connection tokens (more about them later), sign API
-requests and sign private channel subscription requests.
+**要确保只有Centrifugo和你后端的应用知道这个密钥**。它用于生成客户端连接tokens (在后面会有更详细的说明), 认证API请求和私有通道订阅请求。
 
-The next available option is `connection_lifetime`:
+下一个是`connection_lifetime`:
 
-`connection_lifetime` – this is a time in seconds for client connection to expire. By default it equals `0` - this means that connection can live forever and will not expire. See more about connection expiration mechanism in special chapter. In most situations you don't have to explicitly set it as no connection expiration is ok for most applications.
+`connection_lifetime` – 这是客户端的过期时间设置，以秒为单位。默认是`0` - 这表示长连接，永远不会过期。在后面的章节请仔细查看连接过期机制。在大部分情况下，你不需要变更这个设置。
 
 ```javascript
 {
@@ -25,11 +23,11 @@ The next available option is `connection_lifetime`:
 }
 ```
 
-Let's look on options related to channels. Channel is an entity to which clients can subscribe to receive messages published into that channel. Channel is just a string - but several symbols has special meaning - see special chapter to find more information about channels. The following options will affect channel behaviour:
+通道是客户端用于订阅和发布消息的实体。通道仅是一个字符串，但不同的符号代表不同的意思 - 在后面可以看到更多关于通道的说明。下面介绍会影响通道的相关配置项:
 
-* `watch` – Centrifugo will additionally publish messages into admin channel (these messages can be visible in web interface `messages tab`). By default `false`. Note that this option must be used carefully in channels with high rate of new messages as admin client can not process all of those messages. Use this option in development or for channels with reasonable message rate.
+* `watch` – 这个选项会使Centrifugo把消息发布到管理通道（这些消息可以在管理网站的`messages tab`看到). 默认值是 `false`. 注意，启用这个选项要小心，因为高频率的消息有可能导致管理客户端无法处理所有消息，建议只有在开发环境启用或者是选择一些通道使用合理的消息频率.
 
-* `publish` – allow clients to publish messages into channels directly (from client side). Your application will never receive those messages. In idiomatic case all messages must be published by your application backend using Centrifugo API. But this option can be useful when you want to build something without backend-side validation and saving into database. This option can also be useful for demos and prototyping real-time ideas. Note that client can only publish data into channel after successfully subscribed on it. By default it's `false`.
+* `publish` – 允许客户端直接发布消息。你的应用永远不会接收这些消息。正常情况下，所有消息应该是由你的应用后端使用Centrifugo API发布，但这个选项对于想构建没有后端验证、保存数据库需要的时候特别有用，对于演示和练习实时想法也非常有用。但要注意，客户端只有先订阅通道成功，才能发布消息至通道。默认值是`false`.
 
 * `anonymous` – this option enables anonymous access (with empty user ID in connection parameters). In most situations your application works with authorized users so every user has its own unique id. But if you provide real-time features for public access you may need unauthorized access to some channels. Turn on this option and use empty string as user ID. By default `false`.
 

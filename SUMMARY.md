@@ -4,7 +4,7 @@
 * [实时服务端](server/README.md)
     * [Centrifugo安装和快速指南](server/start.md)
     * [配置概述](server/configuration.md)
-    * [Configuration settings](server/settings.md)
+    * [重要配置说明](server/settings.md)
     * [Channels](server/channels.md)
     * [Engines](server/engines.md)
     * [Scaling with Redis](server/scaling.md)
