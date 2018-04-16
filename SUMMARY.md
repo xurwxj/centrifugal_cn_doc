@@ -1,9 +1,9 @@
 # Summary
 
-* [Overview](README.md)
-* [Real-time server](server/README.md)
-    * [Install Centrifugo and quick start](server/start.md)
-    * [Configuration overview](server/configuration.md)
+* [概述](README.md)
+* [实时服务端](server/README.md)
+    * [Centrifugo安装和快速指南](server/start.md)
+    * [配置概述](server/configuration.md)
     * [Configuration settings](server/settings.md)
     * [Channels](server/channels.md)
     * [Engines](server/engines.md)
