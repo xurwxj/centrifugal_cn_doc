@@ -1,51 +1,35 @@
-# Channels
+# 通道
 
-Channel is a route for messages.
+通道是消息的路由凭证。
 
-Clients can subscribe on channel to receive events related to this channel - new
-messages, join/leave events etc. Also client must be subscribed on channel to get
-presence or history information.
+客户端可以从通道订阅事件 - 新的消息，加入/离开的事件，通道在线状况信息和历史信息等。
 
-Channel is just a string - ``news``, ``comments`` are valid channel names.
+通道凭证只是一串字符 - ``news``, ``comments``都是有效的名称.
 
-**BUT!** You should remember several things.
+**但**你要注意以下2件事：
 
-First, channel name length is limited by `255` characters by default (can
-be changed via configuration file option `max_channel_length`)
+首先，通道名称长度不能超过255（可以通过`max_channel_length`值来改变）。
 
-Second, `:`, `#`, `&` and `$` symbols have a special role in channel name.
+其次, `:`, `#`, `&` 和 `$`对于通道名来说有特殊的意义，请仔细查看下面的信息：
 
-### namespace channel boundary
+### 命名空间通道边界符
 
-``:`` - is a channel namespace boundary.
+``:`` - 表示命名空间通道边界符
 
-If channel is `public:chat` - then Centrifuge will apply options to this channel
-from channel namespace with name `public`.
+如果通道名是`public:chat` - Centrifuge将认为是`public`命名空间下的通道`chat`
 
-### user channel boundary
+### 用户通道边界符
 
-`#` is a user boundary - separator to create private channels for users (user limited
-channels) without sending POST request to your web application. For example if channel
-is `news#42` then only user with ID `42` can subscribe on this channel (Centrifugo
-knows user ID as clients provide it in connection parameters).
+`#`表示用户通道边界符 - 用于私有通道。比如`news#42`通道表示只有用户id是`42`的用户才能订阅这个通道。
 
-Moreover you can provide several user IDs in channel name separated by comma: `dialog#42,43` –
-in this case only user with ID `42` and user with ID `43` will be able to subscribe on this channel.
+你可以把多个用户id用逗号分隔，比如`dialog#42,43` – 表示用户id是`42`和`43`的这2个用户才能订阅这个通道。
 
-This is useful for channels with static allowed users, for example for user personal messages
-channel, for dialog channel between certainly defined users. As soon as you need dynamic user
-access to channel this channel type does not suit well.
+这个对于用户个人消息或者是指定用户范围的消息非常有用，简单来说可以实现个人消息提醒、私聊、讨论组和群聊。
 
-### client channel boundary (new in 0.2.0)
+### 客户端通道边界符 (v0.2.0开始启用)
 
-`&` is a client channel boundary. This is similar to user channel boundary but limits
-access to channel only for one client with ID set after `&`. For example if channel is
-`client&7a37e561-c720-4608-52a8-a964a9db7a8a` then only client with client ID
-`7a37e561-c720-4608-52a8-a964a9db7a8a` (call `centrifuge.getClientId()` in javascript to
-get client's ID) will be able to subscribe on this channel.
+`&` 是客户端通道边界符，与用户通道边界符类似，但仅允许指定id的客户端才能接入。 比如`client&7a37e561-c720-4608-52a8-a964a9db7a8a`表示客户端id是`7a37e561-c720-4608-52a8-a964a9db7a8a` (通过 `centrifuge.getClientId()`获取客户端ID)才能订阅这个通道。
 
-### private channel prefix
+### 私有通道边界符
 
-If channel starts with `$` then it considered private. Subscription on private channel
-must be properly signed by your web application. Read special chapter in docs about
-private channel subscriptions.
+如果通道名以`$`开始，则表示这是个私有通道，私有通道要求在你的应用中先通过认证，可以在后面的章节详细了解么有通道订阅的知识。

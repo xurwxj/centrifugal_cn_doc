@@ -29,21 +29,21 @@
 
 * `publish` – 允许客户端直接发布消息。你的应用永远不会接收这些消息。正常情况下，所有消息应该是由你的应用后端使用Centrifugo API发布，但这个选项对于想构建没有后端验证、保存数据库需要的时候特别有用，对于演示和练习实时想法也非常有用。但要注意，客户端只有先订阅通道成功，才能发布消息至通道。默认值是`false`.
 
-* `anonymous` – this option enables anonymous access (with empty user ID in connection parameters). In most situations your application works with authorized users so every user has its own unique id. But if you provide real-time features for public access you may need unauthorized access to some channels. Turn on this option and use empty string as user ID. By default `false`.
+* `anonymous` – 允许匿名接入（意味着user ID是空的）。大部分情况下，你的用户通过其唯一id验证接入，但你也可以开放某些通道允许公开接入，以启用实时特性。默认值是`false`.
 
-* `presence` – enable/disable presence information. Presence is a structure with clients currently subscribed on channel. By default `false` – i.e. no presence information available for channels.
+* `presence` – 启用/禁用在线状态信息。启用时可获取到通道当前订阅的客户端。默认值是`false` – 表示不启用.
 
-* `join_leave` – enable/disable sending join(leave) messages when client subscribes on channel (unsubscribes from channel). By default `false`.
+* `join_leave` – 启用/禁用客户端订阅或取消订阅通道的触发消息，默认值是`false`。启用时可用于一些业务端的特殊逻辑处理。
 
-* `history_size` – history size (amount of messages) for channels. As Centrifugo keeps all history messages in memory it's very important to limit maximum amount of messages in channel history to reasonable minimum. By default history size is `0` - this means that channels will have no history messages at all. As soon as history enabled then `history_size` defines maximum amount of messages that Centrifugo will keep for **each** channel in namespace during history lifetime (see below).
+* `history_size` – 通道的历史消息最大保留数。Centrifugo默认保留所有消息在内存中，所以通道历史消息最大保留数设置为一个合理的最小值很重要，它与下面的`history_lifetime`值一起使用。默认值是`0` - 表示通道不保留任何历史消息。一旦设置为大于0的值，则表示在下面的`history_lifetime`值期间，在命名空间中的通道都将保留这个数量的历史消息。
 
-* `history_lifetime` – interval in seconds how long to keep channel history messages. As all history is storing in memory it is also very important to get rid of old history data for unused (inactive for a long time) channels. By default history lifetime is `0` – this means that channels will have no history messages at all. **So to get history messages you should wisely configure both `history_size` and `history_lifetime` options**.
+* `history_lifetime` – 通道历史消息保留时间，超过这个时间的历史消息都将从内存中清除。默认值是`0` – 表示通道不保留任何历史消息。**如果你想要历史消息，你必须同时设置`history_size` 和 `history_lifetime` **.
 
-* `recover` (**new in v1.2.0**) – boolean option, when enabled Centrifugo will try to recover missed messages published while client was disconnected for some reason (bad internet connection for example). By default `false`. This option must be used in conjunction with reasonably configured message history for channel i.e. `history_size` and `history_lifetime` **must be set** (because Centrifugo uses channel message history to recover messages). Also note that note all real-time events require this feature turned on so think wisely when you need this. See more details about how this option works in [special chapter](recover.md).
+* `recover` (**v1.2.0开始启用**) – 布尔值选项，启用时Centrifugo会在客户端断开连接时尝试恢复消息。默认值是`false`。这个选项必须要搭配`history_size`和 `history_lifetime`一起使用(因为Centrifugo是从历史消息中进行恢复操作). 同时所有实时事件都需要这个选项启用，更多信息请看[特殊章节](recover.md).
 
-* `history_drop_inactive` (**new in v1.3.0**) – boolean option, allows to drastically reduce resource usage (engine memory usage, messages travelling around) when you use message history for channels. In couple of words when enabled Centrifugo will drop history messages that no one needs. Please, see [issue on Github](https://github.com/centrifugal/centrifugo/issues/50) to get more information about option use case scenario and edge cases it involves.
+* `history_drop_inactive` (**v1.3.0开始启用**) – 布尔值选项，当启用历史消息设置时允许动态的调整资源使用（比如内存、消息保留等），换句话说，启用这个选项，可以让Centrifugo清理掉不再需要的历史消息，可以查看[issue on Github](https://github.com/centrifugal/centrifugo/issues/50) 了解更多使用场景和逻辑。
 
-Let's look how to set all of these options in config:
+这些值在配置文件中的样例如下:
 
 ```javascript
 {
@@ -60,22 +60,21 @@ Let's look how to set all of these options in config:
 }
 ```
 
-And the last channel specific option is `namespaces`. `namespaces` are optional and if set must be an array of namespace objects. Namespace allows to configure custom options for channels starting with namespace name. This provides a great control over channel behaviour.
+最后要特别说明的与通道相关的选项是`namespaces`. `namespaces`是可选的，并且是1个对象数组，允许不同的命名空间对一批通道定制选项，可以实现不同的行为结果。
 
-Namespace has a name and the same channel options (with same defaults) as described above.
+Namespace有1个名称及和其它通道选项一样的选项（如上面描述的）。
 
-* `name` - unique namespace name (name must must consist of letters, numbers, underscores or hyphens and be more than 2 symbols length i.e. satisfy regexp `^[-a-zA-Z0-9_]{2,}$`).
+* `name` - 唯一的空间名称 (只能由字母、数字、下划线、中杠组成，不少于2个字符长度，满足`^[-a-zA-Z0-9_]{2,}$`的正则规则).
 
-If you want to use namespace options for channel - you must include namespace name into
-channel name with `:` as separator:
+如果你想为通道启用命名空间，你必须要用`:`进行分隔:
 
 `public:messages`
 
 `gossips:messages`
 
-Where `public` and `gossips` are namespace names from project `namespaces`.
+`public` 和 `gossips`是 `namespaces`中的命名空间名.
 
-All things together here is an example of `config.json` which includes registered project with all options set and 2 additional namespaces in it:
+所有选项组合在一起的配置文件样例如下:
 
 ```javascript
 {
@@ -107,8 +106,8 @@ All things together here is an example of `config.json` which includes registere
 }
 ```
 
-Channel `news` will use global project options.
+通道 `news`将使用全局设置
 
-Channel `public:news` will use `public` namespace's options.
+通道 `public:news` 将使用命名空间`public`的设置
 
-Channel `gossips:news` will use `gossips` namespace's options.
+通道 `gossips:news` 将使用命名空间`gossips` 的设置

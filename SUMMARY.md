@@ -5,7 +5,7 @@
     * [Centrifugo安装和快速指南](server/start.md)
     * [配置概述](server/configuration.md)
     * [重要配置说明](server/settings.md)
-    * [Channels](server/channels.md)
+    * [通道](server/channels.md)
     * [Engines](server/engines.md)
     * [Scaling with Redis](server/scaling.md)
     * [Server API](server/api.md)
