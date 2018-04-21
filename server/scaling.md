@@ -1,76 +1,61 @@
-Scaling with Redis
+基于Redis集群
 ==================
 
-As you can read before – it's possible to run multiple nodes of Centrifugo server
-and load balance clients between them. In this chapter I'll show how to do it. We
-will start 3 Centrifugo nodes and all those nodes will be connected over Redis.
+如你前面已经读到的 - 可以很方便的把Centrifugo的多个节点集群并负载均衡。这个章节我们将介绍如何实现它。我们将启动3个节点的Centrifugo通过Redis实现集群。
 
-For this purpose we must use Redis engine described in previous chapter.
+要实现这个目的我们必须要使用Redis引擎。
 
-First, you should have Redis running. As soon as it's running - we can launch 3
-Centrifugo instances. Open your terminal and start first one:
+首先，你必须要运行Redis，然后我们打开终端并启动第1个Centrifugo节点:
 
 ```
 centrifugo --config=config.json --port=8000 --engine=redis --redis_host=127.0.0.1 --redis_port=6379
 ```
 
-If your Redis on the same machine and runs on its default port you can omit `--redis_host`
-and `--redis_port` options in command above.
+如果你的Redis是运行在同一台服务器的默认端口上， 你可以省略`--redis_host`和`--redis_port`这2项配置。
 
-Then open another terminal and launch another Centrifugo instance:
+启动第2个Centrifugo节点:
 
 ```
 centrifugo --config=config.json --port=8001 --engine=redis --redis_host=127.0.0.1 --redis_port=6379
 ```
 
-Note that we use another port number (8001) as port 8000 already busy by our first Centrifugo instance.
-If you are starting Centrifugo instances on different machines then you most probably can use
-the same port number for all instances.
+注意，由于我们是在同一台服务器上运行集群，所以，需要把第2个Centrifugo节点运行在不同的端口。如果你是在不同服务器上运行Centrifugo节点，可以不需要指定Centrifugo运行的端口。
 
-And let's start third instance:
+启动第3个Centrifugo节点:
 
 ```
 centrifugo --config=config.json --port=8002 --engine=redis --redis_host=127.0.0.1 --redis_port=6379
 ```
 
-Now you have 3 Centrifugo instances running on ports 8000, 8001, 8002 and clients can connect to
-any of them. You can also send API request to any of those nodes - as all nodes connected over Redis
-PUB/SUB message will be delivered to all of them.
+现在你拥有3个Centrifugo节点，分别运行在8000, 8001, 8002这3个端口，客户端已经可以连接他们了。你可以发送API请求到任一节点，Centrifugo所有节点会根据Redis的PUB/SUB消息来发送他们。
 
-To load balance clients between nodes we use Nginx - you can find its configuration here in
-documentation. Note that it's important to route clients that use SockJS transports (except
-websocket) to the same node as that node keeps client's session information.
+如果你使用Nginx来进行负载均衡，你可以在文档中找到它的配置。注意，当使用SockJS(排除websocket)时，要确保连接相同的节点（这个节点保存了客户端的连接会话信息）。
 
-## Redis sharding
+## Redis集群
 
-Starting from Centrifugo v1.6.0 there is a builtin Redis sharding support.
+从Centrifugo v1.6.0开始内建支持Redis集群支持。
 
-This resolves some fears about Redis being bottleneck on some large Centrifugo setups. Redis
-is single-threaded server, it's insanely fast but if your Redis approaches 100% CPU usage then
-this sharding feature is what can help your application to scale.
+在某些大型应用场景，这个可以解决Redis成为Centrifugo瓶颈的问题。Redis是单线程服务，它非常快，但如果CPU资源达到100%的时候，就需要集群来扩展了。这个特性支持你扩展你的应用支撑能力。
 
-At moment Centrifugo supports simple comma-based approach to configuring Redis shards. Let's just
-look on examples.
+目前Centrifugo支持以逗号分隔的Redis集群，看下面的例子。
 
-To start Centrifugo with 2 Redis shards on localhost running on port 6379 and port 6380:
+启动2个Redis集群支持的Centrifugo服务，Redis分别运行在6379和6380端口:
 
 ```
 centrifugo --config=config.json --engine=redis --redis_port=6379,6380
 ```
 
-To start Centrifugo with Redis instances on different hosts:
+启动运行在不同服务器上的Redis，并且用在Centrifugo上:
 
 ```
 centrifugo --config=config.json --engine=redis --redis_host=192.168.1.34,192.168.1.35
 ```
 
-If you also need to customize AUTH password, Redis DB number then you can use `--redis_url` option.
+如果你需要指定Redis的认证授权密码、指定Redis数据库名，你可以使用`--redis_url`参数。
 
-Note, that due to how Redis PUB/SUB work it's not possible (and it's pretty useless anyway) to run
-shards in one Redis instances using different Redis DB numbers.
+注意，Redis集群的PUB/SUB不支持不同的数据库名。
 
-When sharding enabled Centrifugo will spread channels and history/presence keys over configured
-Redis instances using consistent hashing algorithm. At moment we use Jump consistent hash algorithm
-(see [paper](https://arxiv.org/pdf/1406.2294.pdf) and [implementation](https://github.com/dgryski/go-jump))
+启用了Redis集群（使用consistent hashing算法）的Centrifugo可以扩展通道、历史消息、在线状态等。目前我们使用Jump consistent hash算法
+(看 [论文](https://arxiv.org/pdf/1406.2294.pdf) and [实现](https://github.com/dgryski/go-jump))
 
-If you have any feedback on sharding feature - let us know.
+如果你有任何关于Redis集群特性的反馈，请及时告知我们。

@@ -7,7 +7,7 @@
     * [重要配置说明](server/settings.md)
     * [通道](server/channels.md)
     * [引擎](server/engines.md)
-    * [Scaling with Redis](server/scaling.md)
+    * [基于Redis集群](server/scaling.md)
     * [Server API](server/api.md)
     * [Connection check](server/connection_check.md)
     * [Tokens and signatures](server/tokens_and_signatures.md)
