@@ -1,19 +1,8 @@
-# Connection check
+# 连接检查
 
-When client connects to Centrifugo with proper connection credentials then this connection
-can live forever. This means that even if you banned this user in your web application
-he will be able to read messages from channels he already subscribed to. This is not
-what we want in some cases.
+如果客户端通过合适的方式连接到了Centrifugo，则每个连接可以保持长连接。如果客户端已经连接到Centrifugo，哪怕你在你的应用中禁用了这个用户，他还是能从已经订阅的通道中读取信息。在某些情况下，我们不希望这样。
 
-Project has special option: `connection_lifetime`. Connection lifetime is `0` by default
-i.e. by default connection check mechanism is off.
-
-When connection lifetime is set to value greater than 0 then this is a time in seconds how
-long connection will be valid after successful connect. When connection lifetime expires
-javascript browser client will make an AJAX POST request to your web application. By default
-this request goes to `/centrifuge/refresh/` url endpoint. You can change it using javascript
-client configuration option `refreshEndpoint`. In response your server must return JSON with
-connection credentials. For example in python:
+配置文件中有一个特殊的选项: `connection_lifetime`. 默认值是`0`表示不启用连接检查机制。如果设置比`0`大的值，则表示每隔多少秒就对连接进行检查验证。如果连接时间过期，则javascript浏览器客户端会发起1个AJAX POST请求，默认是请求到`/centrifuge/refresh/`，你可以通过`refreshEndpoint`参数设置到其它地址。如果是自定义的地址，请务必要返回带连接验证的JSON。比如在python中你可以这样写:
 
 ```python
     to_return = {
@@ -25,9 +14,6 @@ connection credentials. For example in python:
     return json.dumps(to_return)
 ```
 
-You must just return the same connection credentials for `user` when rendering page
-initially. But with current `timestamp`. Javascript client will then send them to
-Centrifugo server and connection will be refreshed for a connection lifetime period.
+你返回的连接验证必须要跟`user`渲染页面时的值一样，但使用当前的`timestamp`时间戳。Javascript客户端会把它们发给Centrifugo服务器，然后连接将自动刷新为新的周期。
 
-If you don't want to refresh connection for this user - just return 403 Forbidden
-on refresh request to your web application backend.
+如果你不想刷新，则可以直接返回403即可。

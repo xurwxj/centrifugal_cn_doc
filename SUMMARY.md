@@ -9,7 +9,7 @@
     * [引擎](server/engines.md)
     * [基于Redis集群](server/scaling.md)
     * [服务端API](server/api.md)
-    * [Connection check](server/connection_check.md)
+    * [连接检查](server/connection_check.md)
     * [Tokens and signatures](server/tokens_and_signatures.md)
     * [Client Protocol](server/client_protocol.md)
     * [Signal handling](server/signals.md)
