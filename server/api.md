@@ -1,55 +1,35 @@
-# Server API
+# 服务端API
 
-HTTP API is a way to send commands to Centrifugo. There is also another way to send commands –
-using Redis engine but in this chapter we will talk mostly about HTTP API.
+除了HTTP API外，还有一种方式可以发送命令给Centrifugo – 就是使用Redis引擎，但这章节我们将主要介绍HTTP API.
 
-Why we need API?
+为什么我们需要API?
 
-If you look at project and namespace options you see option called `publish`. When turned on
-this option allows browser clients to publish into channels directly. If client publishes a
-message into channel directly - your application will not receive that message (it just goes
-through Centrifugo towards subscribed clients). This pattern can be useful sometimes but in
-most cases you first need to receive new event from client via AJAX, process it - probably
-validate, save into database and then `publish` into Centrifugo using HTTP API and Centrifugo
-will then broadcast message to all subscribed clients.
+如果你看到项目和命名空间参数，你会看到有一个参数叫`publish`。当启用这个参数的时候，就允许浏览器客户端直接发送信不信到这个通道。如果客户端直接发布消息到通道，你的应用将不会接收到这些消息（他们是直接通过Centrifugo转发到了订阅的客户端）。这种模式有时非常有用，但在大部分时候，你需要通过ajax接收、处理消息 - 可能用于验证、保存然后再通过HTTP API `publish`到Centrifugo，然后Centrifugo再广播给所有订阅的客户端。
 
-Also HTTP API can be used to send other types of commands - see all available commands below.
+HTTP API也可以用于发送其它命令 - 所有可用的命令请看下面。
 
-If your backend written in Python you can use [Cent](../libraries/python.md) API client. Also we have
-client [for Ruby](../libraries/ruby.md) and [PHP](../libraries/php.md). If you use other language don't worry - I will describe
-how to communicate with Centrifugo HTTP API endpoint in this chapter.
+如果你使用Python，你可以使用[Cent](../libraries/python.md) API客户端。我们也有[Ruby](../libraries/ruby.md)的客户端和[PHP](../libraries/php.md)的客户端。如果你使用其它语言，请不要担心，我会在这个章节说明如何接入Centrifugo HTTP API。
 
-Note also that there are 2 API endpoints in Centrifugo - first of them is HTTP API endpoint and
-second – Redis Engine API. In this section we will talk about HTTP API mostly. You can find
-description of Redis API in `engines` chapter - it has the same commands but simplified format.
-So if you decide that HTTP API is too difficult and uncomfortable to use - you can use Redis API
-to publish new messages into channels.
+注意，Centrifugo有HTTP API和Redis引擎API这2种API接入方式，这章我们主要说HTTP API。你可以在`engines`章节查找Redis引擎API的接入方式 - 它有同样的命令，但格式更加简单。
+所以如果你觉得HTTP API难用、不好用 - 你可以使用Redis引擎API来发布消息到通道。
 
-Let's start!
+现在开始介绍HTTP API!
 
-Centrifugo API url is `/api/`.
+Centrifugo API的url是`/api/`.
 
-So if your Centrifugo sits on domain `https://centrifuge.example.com` then an API address
-will be `https://centrifuge.example.com/api/`.
+如果你的Centrifugo站点域名是`https://centrifuge.example.com`，那API地址就是`https://centrifuge.example.com/api/`。
 
 All you need to do to use HTTP API is to send correctly constructed POST request to this endpoint.
 
-API request is a POST `application/json` request with commands in request body and one additional header `X-API-Sign`.
+API请求是`application/json`格式的POST请求，命令及内容在请求的body中，并且需要在请求头中设置`X-API-Sign`。命令可以是单个或数组形式的多个。`X-API-Sign`头是SHA-256 HMAC格式的字符串，基于Centrifugo加密密钥和你要发送的JSON内容，用于Centrifugo验证API请求合法性。
 
-Body of request is just a JSON representing commands you need to execute. This can be single command
-or array of commands. See available commands below.
+大部分情况下，你可以通过防火墙和`--insecure_api`参数来禁用验证，就足够保证Centrifugo安全性。如果`--insecure_api`被启用，则无需设置上述头信息。
+命令内容是一个JSON对象，这个对象有2个属性: `method` 和 `params`.
 
-`X-API-Sign` header is an SHA-256 HMAC string based on Centrifugo secret key and JSON body you want to send.
-This header is used by Centrifugo to validate API request. In most situations you can protect Centrifugo
-API endpoint with firewall rules and disable sign check using `--insecure_api` option when starting
-Centrifugo. In this case you just need to send POST request with commands - no need in addition header.
+`method` 是你想执行的行为.
+`params` 是行为的参数，它是一个对象.
 
-Command is a JSON object with two properties: `method` and `params`.
-
-`method` is a name of action you want to do.
-`params` is an object with method arguments.
-
-For example to send publish command to Centrifugo in Python you construct sth like this for your request body:
+下面是通过Python的代码样例来展示如何构建JSON对象:
 
 ```
 command = json.dumps({
@@ -58,10 +38,7 @@ command = json.dumps({
 })
 ```
 
-If you have not turned of sign check you also need to include properly constructed sign
-in `X-API-Sign` header when sending this to `/api/` Centrifugo endpoint.
-
-To send 2 publish commands in one request you need body like this:
+要发布2个命令，你可以象下面这样:
 
 ```
 commands = json.dumps([
@@ -76,20 +53,9 @@ commands = json.dumps([
 ])
 ```
 
-First lets see how to construct such request in Python.
+现在，我们来看看Python中是怎么构建这样的请求的，这对于想自行实现Centrifugo API或想自己发送请求（减少额外的项目依赖）的人非常有用。
 
-*If Python is your language then you don't have to implement this yourself as
-`Cent` python module exists.*
-
-But this example here can be useful for someone who want to implement interaction
-with Centrifugo API in language for which we don't have API client yet or you just
-want to send requests yourself - this is simple and in most cases you can just go
-without using our API library (to not introduce extra dependency in your project for
-example).
-
-Let's imagine that your Centrifugo has secret key `secret`.
-
-First, let's see how to send API command using Python library `requests`:
+假设你的Centrifugo加密密钥是`secret`.
 
 ```python
 import json
@@ -111,23 +77,16 @@ r = requests.post("https://centrifuge.example.com/api/", data=encoded_data, head
 print r.json()
 ```
 
-In code above to generate sign we used function from `Cent` module. To see how you can
-generate API sign yourself go to chapter [Tokens and signatures](./tokens_and_signatures.md).
+上述代码生成了认证签名，如果你想自己生成API签名，你可以跳到章节[Tokens和签名](./tokens_and_signatures.md)。
 
-Also note that in this example we send an array of commands. In this way you can send several
-commands to Centrifugo in one request.
+同时，我们在上述代码中发送了命令数组，这意味着我们可以一次发送多个命令给Centrifugo。
 
-There are not so many commands you can call. The main and most useful of them is `publish`.
-Lets take a closer look on other available API command methods.
-
-You have `publish`, `broadcast`, `unsubscribe`, `presence`, `history`, `disconnect`,
-`channels`, `stats`, `node` in your arsenal.
+你可以调用的命令主要是以下（其中最主要、最有用的是`publish`，还有`broadcast`, `unsubscribe`, `presence`, `history`, `disconnect`,
+`channels`, `stats`, `node`）：
 
 ### publish
 
-`publish` allows to send message into channel. `params` for `publish` method must be an
-object with two keys: `channel` and `data` which contains valid JSON payload you want to
-send into channel.
+`publish`允许你发送消息到通道。`params`必须是一个有`channel`和`data`属性的对象，这2个属性决定了要发送到通道的内容。
 
 ```javascript
 {
@@ -141,7 +100,7 @@ send into channel.
 }
 ```
 
-Starting with **version 0.2.0** there is an option to include `client` ID into publish API command:
+从**v0.2.0**开始，增加了一个`client`的ID可选项:
 
 ```javascript
 {
@@ -156,10 +115,9 @@ Starting with **version 0.2.0** there is an option to include `client` ID into p
 }
 ```
 
-In most cases this is a `client` ID that initiated this message. This `client` will
-be then added on top level of published message.
+大部分情况下它就是用来初始化消息的`client` ID，`client`的值将添加到被发布消息的顶部。
 
-Response example:
+响应样例如下:
 
 ```javascript
 {
@@ -169,9 +127,9 @@ Response example:
 }
 ```
 
-### broadcast (new in v1.2.0)
+### broadcast (从v1.2.0开始增加)
 
-Very similar to `publish` but allows to send the same data into many channels.
+和`publish`很相似，但允许发布同样的数据到很多通道去。
 
 ```javascript
 {
@@ -185,17 +143,14 @@ Very similar to `publish` but allows to send the same data into many channels.
 }
 ```
 
-`client` field to set client ID also supported.
+`client`也是用于设置客户端ID。 
 
-This command will publish data into channels until first error happens. This error then set
-as response error and publishing stops. In case of using Redis API queue first error will
-be logged.
+该命令将持续发布数据至通道，除非发生错误才停止。如果使用Redis API队列，则第一个错误日志会被记录。
 
 
 ### unsubscribe
 
-`unsubscribe` allows to unsubscribe user from channel. `params` is an objects with two
-keys: `channel` and `user` (user ID you want to unsubscribe)
+`unsubscribe` 允许用户取消通道的订阅。`params`是一个包含下列2个属性的对象: `channel` 和 `user` (是你想取消订阅的客户端的用户ID)
 
 ```javascript
 {
@@ -207,7 +162,7 @@ keys: `channel` and `user` (user ID you want to unsubscribe)
 }
 ```
 
-Response example:
+响应样例:
 
 ```javascript
 {
@@ -220,7 +175,7 @@ Response example:
 
 ### disconnect
 
-`disconnect` allows to disconnect user by its ID. `params` in an object with `user` key.
+`disconnect`允许使用用户ID来取消连接。`params`是一个带`user`属性的对象.
 
 ```javascript
 {
@@ -231,7 +186,7 @@ Response example:
 }
 ```
 
-Response example:
+响应样例:
 
 ```javascript
 {
@@ -244,8 +199,7 @@ Response example:
 
 ### presence
 
-`presence` allows to get channel presence information (all clients currently subscribed on
-this channel). `params` is an object with `channel` key.
+`presence`允许你获取通道当前的在线信息（所有订阅了这个通道的客户端）。`params`是一个带`channel`属性的对象.
 
 ```javascript
 {
@@ -256,7 +210,7 @@ this channel). `params` is an object with `channel` key.
 }
 ```
 
-Response example:
+响应样例:
 
 ```javascript
 {
@@ -295,8 +249,8 @@ Response example:
 
 ### history
 
-`history` allows to get channel history information (list of last messages sent into channel).
-`params` is an object with `channel` key.
+`history`允许获取通道的历史信息 (最后发布到通道的消息列表).
+`params`是一个带`channel`属性的对象.
 
 ```javascript
 {
@@ -307,7 +261,7 @@ Response example:
 }
 ```
 
-Response example:
+响应样例:
 
 ```javascript
 {
@@ -364,7 +318,7 @@ Response example:
 
 ### channels (Centrifugo >= 0.3.0)
 
-`channels` method allows to get list of active (with one or more subscribers) channels.
+`channels`允许获取当前活跃的通道列表（有1个或更多订阅者的）。
 
 ```javascript
 {
@@ -373,7 +327,7 @@ Response example:
 }
 ```
 
-Response example:
+响应样例:
 
 ```javascript
 {
@@ -391,7 +345,7 @@ Response example:
 
 ### stats (Centrifugo >= 1.0.0)
 
-`stats` method allows to get statistics about running Centrifugo nodes.
+`stats` 获取Centrifugo节点的统计信息方法。
 
 ```javascript
 {
@@ -400,7 +354,7 @@ Response example:
 }
 ```
 
-Response example:
+响应样例:
 
 ```javascript
 {
@@ -438,13 +392,7 @@ Response example:
 
 ### node (Centrifugo >= 1.4.0)
 
-`node` method allows to get information about single Centrifugo node. That information
-will contain counters without aggregation over minute interval (what `stats` method
-does by default). So it can be useful if your metric aggregation system aggregates counters
-over time period itself. Also note that to use this method you should send API request
-to each Centrifugo node separately - as this method returns current raw statistics about
-node. See [issue](https://github.com/centrifugal/centrifugo/issues/68) for motivation
-description.
+`node`允许获取单个Centrifugo节点的信息。这些信息包含未聚合的计数(`stats`默认显示聚合的)。所以如果你要自行统计时间段的信息会特别有用。但这个方法你要单独请求你需要获取的节点。看[issue](https://github.com/centrifugal/centrifugo/issues/68)获取更多信息。
 
 ```javascript
 {
@@ -453,7 +401,7 @@ description.
 }
 ```
 
-Response example:
+响应样例:
 
 ```
 {
@@ -484,7 +432,4 @@ Response example:
 }
 ```
 
-
-Note again that there is existing API clients for Python, Ruby, PHP - so you don't
-have to construct these commands manually. If you use another programming languages
-look at existing clients to get more help implementing call to HTTP API.
+注意，目前对Python, Ruby, PHP来说已经有现成的API，你无须自行构建。同时，这些现有的API也有助于你在其它语言中实现HTTP的API。

@@ -8,7 +8,7 @@
     * [通道](server/channels.md)
     * [引擎](server/engines.md)
     * [基于Redis集群](server/scaling.md)
-    * [Server API](server/api.md)
+    * [服务端API](server/api.md)
     * [Connection check](server/connection_check.md)
     * [Tokens and signatures](server/tokens_and_signatures.md)
     * [Client Protocol](server/client_protocol.md)
