@@ -10,7 +10,7 @@
     * [基于Redis集群](server/scaling.md)
     * [服务端API](server/api.md)
     * [连接检查](server/connection_check.md)
-    * [Tokens and signatures](server/tokens_and_signatures.md)
+    * [Tokens和签名](server/tokens_and_signatures.md)
     * [Client Protocol](server/client_protocol.md)
     * [Signal handling](server/signals.md)
     * [Stats and metrics](server/stats.md)

@@ -1,13 +1,5 @@
-# Server implementation description
+# 服务器实现描述
 
-Originally Centrifugal organization started from [Centrifuge](https://github.com/centrifugal/centrifuge)
-real-time messaging server written in Python. But then the entire Centrifuge codebase was rewritten
-into Go language. So from this moment when we will talk about server we mean [Centrifugo](https://github.com/centrifugal/centrifugo).
+原来的Centrifugal是从[Centrifuge](https://github.com/centrifugal/centrifuge)这个基于Python写的实时消息服务器开始的。然后整个Centrifuge使用Golang进行了重构，重构完成后我们才有了[Centrifugo](https://github.com/centrifugal/centrifugo)。
 
-The goal of server is to accept client connections from application (web app, mobile app,
-desktop app). Connections can use pure [Websockets](https://developer.mozilla.org/en/docs/WebSockets)
-protocol or [SockJS](https://github.com/sockjs/sockjs-client) polyfill library protocol. Centrifugo
-keeps accepted connections, deliver different messages from clients to server (for example subscription
-command, presence command etc) and from server to clients (new message in channel, various command
-responses etc), handle API requests from your web application backend (mostly publish commands to
-send new message into channel).
+这个项目的目的是为了接受从应用(web app, mobile app, desktop app)等过来的客户端连接。连接可以是纯的[Websockets](https://developer.mozilla.org/en/docs/WebSockets)协议或者是[SockJS](https://github.com/sockjs/sockjs-client)的方式。Centrifugo保持长连接，发送不同的消息从客户端到服务器 (比如订阅命令，在线状态命令等) 和从服务器发到客户端(比如通道中的新消息，不同的命令反馈等), 在你的应用中通过API请求（比如最常用的发布消息到通道）。
