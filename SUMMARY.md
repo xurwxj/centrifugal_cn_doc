@@ -13,7 +13,7 @@
     * [Tokens和签名](server/tokens_and_signatures.md)
     * [客户端协议](server/client_protocol.md)
     * [信号处理](server/signals.md)
-    * [Stats and metrics](server/stats.md)
+    * [状态统计](server/stats.md)
     * [How recover mechanism works](server/recover.md)
     * [Advanced configuration](server/advanced_configuration.md)
 * [Client libraries](clients/README.md)

@@ -1,6 +1,6 @@
-# Server stats and metrics.
+# 服务器状态统计
 
-When you call `stats` API command you get something like this in response body:
+你可以通过`stats` API命令获取到服务器的状态统计信息，返回格式如下:
 
 ```javascript
 "body": {
@@ -88,53 +88,47 @@ When you call `stats` API command you get something like this in response body:
 }
 ```
 
-By default Centrifugo aggregates metrics over 60 seconds period. You can change this begaviour using `node_metrics_interval` configuration option.
+默认Centrifugo每1分钟聚合这些信息，你可以通过`node_metrics_interval`配置参数进行调整。
 
-Let's look what else you can see in `stats` response body.
+"nodes"是每个正在运行的Centrifugo节点状态统计信息数组，每个数组元素对象包括:
 
-"nodes" is an array of stats information from every Centrifugo node running.
+`uid` – 节点的唯一id
 
-Inside every node:
+`name` – 节点名
 
-`uid` – unique id of node
+`started_at` – 节点启动的时间，以秒为单位的unix时间戳
 
-`name` – name of node
-
-`started_at` – node start time as UNIX timestamp
-
-`metrics` is a map of metric values (keys always `string`, values always `integer`) - note that this is a snapshot, it only changes once in `node_metrics_interval` period.
+`metrics` 是一系列值的map (keys总是为 `string`类型, values总是为 `integer`类型) - 注意，这个只是快照，只有在`node_metrics_interval`时间点后才变化.
 
 
-Let's describe some metrics in detail:
+一些值说明:
 
-`node_memory_sys` – node memory usage in bytes
+`node_memory_sys` – 节点内存使用数，单位是字节
 
-`node_cpu_usage` – node cpu usage in percents
+`node_cpu_usage` – 节点cpu使用百分比
 
-`node_num_goroutine` – number of active goroutines (Go language specific)
+`node_num_goroutine` – goroutines的活跃数量 (Golang特有的)
 
-`node_num_clients` – number of connected authorized clients
+`node_num_clients` – 客户端的连接数量
 
-`node_num_unique_clients` – number of unique (with different user ID) clients connected
+`node_num_unique_clients` – 唯一客户端的数量 (使用不同的用户ID)
 
-`node_num_channels` – number of active channels (with one or more subscribers)
+`node_num_channels` – 活跃通道数量(至少1个订阅者)
 
-`node_num_client_msg_published` – number of messages published
+`node_num_client_msg_published` – 消息发布的数量
 
-`node_uptime_seconds` – seconds passed from time when node started.
+`node_uptime_seconds` – 已经运行的时间，以秒为单位
 
-`http_api_num_requests` – number of requests to server HTTP API
+`http_api_num_requests` – HTTP API请求数量
 
-`client_api_num_requests` – number of requests to client API
+`client_api_num_requests` – 客户端API的请求数量
 
-`client_bytes_in` – number of bytes coming to client API (bytes sent from clients)
+`client_bytes_in` – 客户端通过客户端API发送的字节数
 
-`client_bytes_out` – number of bytes coming out of client API (bytes sent to clients)
+`client_bytes_out` – 发送到客户端的字节数
 
-`client_num_msg_queued` – number of messages put into client queues (including protocol messages, join/leave messages etc)
+`client_num_msg_queued` – 进入客户端队列的消息数(包括协议消息，加入/离开消息等)
 
-`client_num_msg_sent` – number of messages actually sent to client (in normal situation must be equal to `num_msg_queued`)
+`client_num_msg_sent` – 实际发到客户端的消息数(正常情况下是跟`num_msg_queued`值一样的)
 
-There are also HDR histogram metric values: for HTTP API and for client API. They are collected over 1 and 15 interval buckets.
-
-Buckets rotated every `node_metric_interval` seconds. So By default you see values over 1 minute and 15 minute.
+也还有HDR的柱状图值: 用于HTTP API和client API。他们是1~15个周期，每个周期是每个`node_metric_interval`秒数，所以默认就是1~15分钟。
