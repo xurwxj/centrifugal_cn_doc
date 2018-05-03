@@ -27,10 +27,10 @@ Centrifugal开发的项目有以下:
 * [centrifuge-python](https://github.com/centrifugal/centrifuge-go) - 基于Python异步库实现Websocket的连接centrifugo库（正在开发中）
 * [cent](https://github.com/centrifugal/cent) - Python工具，使用Centrifugo API
 * [adjacent](https://github.com/centrifugal/adjacent) - 基于Cent的小工具用于Django中简单整合实时消息服务端
-* [rubycent](https://github.com/centrifugal/rubycent) - 基于Ruby和Centrifugo server API实现的库
-* [phpcent](https://github.com/centrifugal/phpcent) - 基于PHP和Centrifugo server API实现的库
-* [gocent](https://github.com/centrifugal/gocent) - 基于Go语言和Centrifugo server API实现的库
-* [jscent](https://github.com/centrifugal/jscent) - 基于NodeJS和Centrifugo server API实现的库
+* [rubycent](https://github.com/centrifugal/rubycent) - 基于Ruby和Centrifugo服务器API实现的库
+* [phpcent](https://github.com/centrifugal/phpcent) - 基于PHP和Centrifugo服务器API实现的库
+* [gocent](https://github.com/centrifugal/gocent) - 基于Go语言和Centrifugo服务器API实现的库
+* [jscent](https://github.com/centrifugal/jscent) - 基于NodeJS和Centrifugo服务器API实现的库
 * [web](https://github.com/centrifugal/web) - Centrifugo的管理网站，基于ReactJS开发
 
 ### 演示站点
