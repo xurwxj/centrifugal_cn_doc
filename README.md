@@ -54,14 +54,14 @@ Centrifugal开发的项目有以下:
 * django – 展示如何整合Django和Centrifugal
 * Tornado应用 – 展示一些常用方法来整合Centrifugal和Tornado - token生成, 私有channel登录
 * NodeJS例子 - 展示如何整合Centrifugo和NodeJS后端
-* WebRTC聊天 - 展示如何把Centrifugo作为WebRTC signaling server来创建点对点通信
+* WebRTC聊天 - 展示如何把Centrifugo作为WebRTC信号服务器来创建点对点通信
 * insecure – 展示如何在不安全的环境下独立运行Centrifugo
 * jsfiddle – [jsfiddle的聊天样例](http://jsfiddle.net/FZambia/yG7Uw/)，使用部署在Heroku[demo](https://centrifugo.herokuapp.com) 上的Centrifugo，预定义的用户ID， 时间戳和token 
 
 ### 社区开发的与Centrifugo相关的项目:
 
 * https://github.com/synw/centcli - Centrifugo终端客户端
-* https://github.com/LaraComponents/centrifuge-broadcaster - Laravel框架整合Centrifugo server API的广播驱动
+* https://github.com/LaraComponents/centrifuge-broadcaster - Laravel框架整合Centrifugo服务器端API的广播驱动
 * https://github.com/synw/django-instant - Django的Websockets实现 
 
 {% include "SUMMARY.md" %}
