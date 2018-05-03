@@ -1,16 +1,13 @@
-# Signal handling
+# 信号处理
 
-This is a chapter about sending operating system signals to Centrifugo.
+这个章节是讲从操作系统发送信息给Centrifugo。
 
-### Channel options and configuration reload.
+### 通道参数和配置重载入
 
-Centrifugo can reload channel options and some other configuration options on the fly.
-
-To reload you must send `HUP` signal to centrifugo process:
+Centrifugo可以重载通道参数或其它的配置选项，通过发送`HUP`信号到Centrifugo进程:
 
 ```bash
 kill -HUP <CENTRIFUGO_PROCESS_PID>
 ```
 
-Some options can not be reloaded because they are used on Centrifugo start. For example various engine
-options, interface and port to listen etc.
+注意：部分参数或配置不能被重载，因为Centrifugo在启动过程中要使用，比如跟引擎相关的参数。
