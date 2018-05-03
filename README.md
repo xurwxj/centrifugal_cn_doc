@@ -41,9 +41,9 @@ Centrifugal开发的项目有以下:
 
 演示站点提供3种客户端连接方式，不管是用客户端还是API库都可以连接:
 
-* wss://centrifugo.herokuapp.com/connection/websocket - raw Websocket endpoint
-* https://centrifugo.herokuapp.com/connection - SockJS endpoint
-* https://centrifugo.herokuapp.com/api/ - HTTP API endpoint
+* wss://centrifugo.herokuapp.com/connection/websocket - Websocket连接地址
+* https://centrifugo.herokuapp.com/connection - SockJS连接地址
+* https://centrifugo.herokuapp.com/api/ - HTTP API连接地址
 
 ### 例子
 
