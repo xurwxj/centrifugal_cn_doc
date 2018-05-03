@@ -1,41 +1,32 @@
-# Client protocol description
+# 客户端协议描述
 
-This chapter aims to help developers to implement new client library or understand
-how already implemented clients work. This chapter is not complete. I will
-update it from time to time with additional information.
+这个章节的目的是帮助开发者实现新的客户端库或者理解已有的客户端库是怎么实现的。这个章节并不完事，当有需要时会进行更新。
 
-Centrifugo already has Javascript, Go, iOS, Android, Python clients to connect your application
-users.
+Centrifugo已经有基于Javascript, Go, iOS, Android, Python的库可以用在你的应用中。
 
-One of the ways to understand how to implement new client is looking at source code
-of existing clients, for example [centrifuge-js](https://github.com/centrifugal/centrifuge-js/blob/master/src/centrifuge.js) or [centrifuge-python](https://github.com/centrifugal/centrifuge-python).
+了解如何实现新客户端库的一个方式是查看已有库的源代码，比如[centrifuge-js](https://github.com/centrifugal/centrifuge-js/blob/master/src/centrifuge.js) 或 [centrifuge-python](https://github.com/centrifugal/centrifuge-python).
 
-Currently websocket is the only available transport to implement client. Centrifugo also supports
-SockJS connections from browser but it's only for browser usage, there is no reason to use it
-from other environments. All communication done via exchanging JSON messages.
+当前的websocket是唯一实现客户端的可用方式。Centrifugo也同时支持在浏览器中使用SockJS。所有通信通过JSON格式的消息进行交换。
 
-Let's look at client protocol step-by-step.
+下面我们一步步了解客户端协议。
 
-### Connect, subscribe on channel and wait for published messages
+### 连接、订阅到通道并且等待发布的消息
 
-Websocket endpoint is:
+Websocket地址是:
 
 ```
 ws://your_centrifugo_server.com/connection/websocket
 ```
 
-Or in case of using TLS:
+或者是使用TLS:
 
 ```
 wss://your_centrifugo_server.com/connection/websocket
 ```
 
-What client should do first is to create Websocket connection to this endpoint.
+首先客户端需要创建一个Websocket连接，连接成功后，客户端必须要发送`connect`到Centrifugo服务器来认证自己。
 
-After successful connection client must send `connect` command to server to authorize itself.
-
-`connect` command is a JSON structure like this (all our examples here use Javascript
-language, but the same can be applied to any language):
+`connect`命令是一个JSON结构的对象，下面使用Javascript语言来做样例（其它语言是一样的结构）:
 
 ```javascript
 var message = {
@@ -52,70 +43,53 @@ var message = {
 connection.send(JSON.stringify(message))
 ```
 
-Look at `method` key with a name of our command – `connect`.
+注意`method`属性值就是我们的命令：`connect`.
 
-Centrifugo can parse an array of messages in one request, so you can add command above into
-array and send result to Centrifugo server over Websocket connection established before:
+Centrifugo可以在一次请求中解析一个消息数组，所以你可以把上述命令加到数组中通过Websocket连接发送:
 
 ```javascript
 var messages = [message]
 connection.send(JSON.stringify(messages))
 ```
 
-Description of `connect` command parameters described in a chapter about javascript client.
+`connect`有以下参数可以使用:
 
-In short here:
+* `user` - 当前的用户ID (string)
+* `timestamp` - 当前以秒为单位的UNIX时间戳(string)
+* `info` - 可选的客户端其它信息 (string)
+* `token` - 根据前面章节描述生成的SHA-256 HMAC token.
 
-* `user` - current application user ID (string)
-* `timestamp` - current Unix timestamp as seconds (string)
-* `info` - optional JSON string with client additional information (string)
-* `token` - SHA-256 HMAC token generated on backend (based on secret key from
-    Centrifugo configuration) to sign parameters above.
+客户端必须要提供这些连接参数，Centrifugo在接到命令后会使用同样的算法生成token。
 
-Application backend must provide all these connection parameters (together with generated
-HMAC SHA-256 token) to client (pass to template when client opens web page for example).
+*注意* Centrifugo也允许匿名接入，请查看前面的配置章节。
 
-After receiving `connect` command over Websocket connection Centrifugo server uses the
-same algorithm (HMAC SHA-256) to generate the token. Correct token proves that client
-provided valid user ID, timestamp and info in its `connect` message.
-
-*Note* that Centrifugo can also allow non-authenticated users to connect to it (for example
-sites with public stream with notifications where all visitors can see new events in real-time
-without actually logging in). For this case backend must generate token using empty string as
-user ID. In this scenario `anonymous` access must be enabled for channels explicitly in
-configuration of Centrifugo.
-
-What you should do next is wait for response from server to `connect` command you just sent.
-
-In general structure that will come from Centrifugo server to your client looks like this:
+下面要做的就是等等Centrifugo返回的响应结果，一般来说，Centrifugo返回的内容结构如下:
 
 ```javascript
 [{response}, {response}, {response}]
 ```
 
-Or just single response
+或者只是单个响应体
 
 ```
 {response}
 ```
 
-I.e. array of responses or one response to commands you sent before. I.e. in our case Centrifugo
-will send to our client:
+是数组还是单个响应体是根据你之前发送的命令数量对应的。相对上面的代码示例来说，Centrifugo将返回:
 
 ```javascript
 [{connect_command_response}]
 ```
 
-Or just:
+或者仅是:
 
 ```javascript
 {connect_command_response}
 ```
 
-So **client must be ready to process both arrays of responses and single object response. This rule
-applies to all communication**.
+**客户端必须要自行处理数据或单个响应体，所有命令都是同样的返回方式**.
 
-Every `response` is a structure like this:
+每个`response`结构如下:
 
 ```javascript
 {
@@ -126,19 +100,13 @@ Every `response` is a structure like this:
 }
 ```
 
-Javascript client uses `method` key to understand what to do with response. As Javascript is
-evented IO language it just calls corresponding function to react on response. Unique `uid`
-also can be used to implement proper responses handling in other languages. For example Go
-client remember command `uid` to call some callback when it receives response from Centrifugo.
+Javascript客户端使用`method`属性来了解响应的结果对应。因为Javascript是事件驱动性语言，它只需要调用相应的方法来处理响应即可。唯一的`uid`也可以用于其它语言的实现处理。比如Golang客户端就在收到Centrifugo的响应时通过`uid`来实现一些回调。
 
-General rule - if response contains a non-empty `error` then server returned an error.
+一般约定：如果响应体中有一个非空的`error`则表示Centrifugo返回了一个错误提示。
 
-You should not get errors in normal workflow. If you get an error then most probably you
-are doing something wrong and this must be fixed on development stages. It can also be
-`internal server error` from Centrifugo. Only developers should see text of protocol errors
-– they are not supposed to be shown to your application clients.
+在正常情况下，你不会拿到错误。如果你拿到了错误，一般是因为你做错了一些事，这些需要在开发阶段进行修复。当然也有可能是Centrifugo的`internal server error`。你应该确保这些错误信息只有开发者能看到，而不是你的用户。
 
-In case of successful `connect` response body is:
+如果是成功的`connect`，它的响应内容类似如下:
 
 ```javascript
 {
@@ -149,11 +117,9 @@ In case of successful `connect` response body is:
 }
 ```
 
-At moment let's just speak about `client` key. This is unique client ID Centrifugo set
-to this connection.
+这里要说一下`client`属性，这是Centrifugo为这个连接设置的唯一客户端ID。
 
-As soon your client successfully connected and got its unique connection ID it is ready to
-subscribe on channels.
+一旦你的客户端连接成功并拿到了唯一的客户端ID，你就可以订阅通道了。
 
 ```javascript
 var message = {
@@ -165,11 +131,7 @@ var message = {
 }
 ```
 
-Just send this `subscribe` command in the same way as `connect` command before.
-
-After you received successful response on this `subscribe` command your client will receive
-messages published to this channel. Those messages will be delivered through Websocket
-connection as response with method `message`. I.e. response will look like this:
+只需与`connect`命令同样的方式发送`subscribe`命令即可。当你得到成功的响应后，你就可以收到这个通道中被发布的消息了。并且这些消息后续会通过Websocket连接通过命令`message`发送过来，这些消息的格式如下:
 
 ```
 {
@@ -191,19 +153,13 @@ connection as response with method `message`. I.e. response will look like this:
 }
 ```
 
-`body` of `message` response contains `channel` to which message corresponds and `data`
-key - this is an actual JSON that was published into that channel.
+`message`命令响应的`body`属性值包含了消息所属的`channel`和在`data`中的实际内容。
 
-This is enough to start with - client established connection, authorized itself sending `connect`
-command, subscribed on channel to receive new messages published into that channel. This is a core
-Centrifugo functionality. There are lots of other things to cover – channel presence information,
-channel history information, connection expiration, private channel subscriptions, join/leave events
-and more but in most cases all you need from Centrifugo - subscribe on channels and receive new
-messages from those channels as soon as your backend published them into Centrifugo server API.
+到这里，基本的连接、认证、订阅都已经讲完了，涵盖了Centrifugo的核心功能。还有其它可以讲的，包括通道在线信息、通道历史信息、连接过期、私有通道订阅、加入/离开事件等.
 
-### Available methods
+### 可用的命令
 
-Lets now look at all available methods your client can send or receive:
+下面是你的客户端可以发送或接收的所有可用命令:
 
 ```
 connect
@@ -220,17 +176,13 @@ refresh
 ping
 ```
 
-Some of this methods used for client to server commands (`publish`, `presence`, `history` etc which
-then get a response from server with the same `method` and unique `uid` in it), some for server to
-clients (for example `join`, `leave`, `message` – which just come from server in any time when
-corresponding event occurred).
+部分命令是客户端发到服务器的，比如`publish`, `presence`, `history`等，这些命令从服务器返回同样的格式：`method`和唯一的 `uid`；部分是服务器发到客户端的，比如`join`, `leave`, `message`，这些只在事件发生的时候才会从服务器发出.
 
-We have already seen `connect`, `subscribe` and `publish` above. Let's describe remaining.
+我们已经讲了`connect`, `subscribe` 和 `publish`，接下来讲其它的.
 
-### Client to server commands
+### 客户端发到服务器的命令
 
-`connect` - send authorization parameters to Centrifugo so your connection could start subscribing
-on channels.
+`connect` - 发送认证到Centrifugo以便于后续操作.
 
 ```javascript
 var message = {
@@ -245,7 +197,7 @@ var message = {
 }
 ```
 
-`subscribe` - allows to subscribe on channel after client successfully connected
+`subscribe` - 连接成功允许订阅通道
 
 ```javascript
 var message = {
@@ -257,7 +209,7 @@ var message = {
 }
 ```
 
-`unsubscribe` - allows to unsubscribe from channel
+`unsubscribe` - 允许取消订阅通道
 
 ```javascript
 message = {
@@ -269,9 +221,7 @@ message = {
 }
 ```
 
-`publish` - allows clients directly publish messages into channel (application backend code will never
-know about this message). `publish` must be enabled for channel in sever configuration so this command
-can work (otherwise Centrifugo will return `permission denied` error in response).
+`publish` - 允许客户端直接发布消息到通道（注意后端应用不会知道这类消息），要使用`publish`要在配置中先启用，否则Centrifugo会返回`permission denied`错误.
 
 ```javascript
 message = {
@@ -284,8 +234,7 @@ message = {
 }
 ```
 
-`presence` – allows to ask server for channel presence information (`presence` must be enabled for
-channel in server configuration or Centrifugo will return `not available` error in response)
+`presence` – 允许从服务器端拿到通道在线信息，要使用`presence`，必须要对通道配置进行启用，否则Centrifugo会返回`not available`错误
 
 ```javascript
 message = {
@@ -297,9 +246,7 @@ message = {
 }
 ```
 
-`history` – allows to ask server for channel history information (history must be enabled for
-channel in server configuration using `history_lifetime` and `history_size` options or Centrifugo
-will return `not available` error in response)
+`history` – 允许从服务器拿到通道历史信息，要先在通道配置中启用`history_lifetime` 和 `history_size`选项，否则Centrifugo会返回`not available`错误
 
 ```javascript
 message = {
@@ -311,8 +258,7 @@ message = {
 }
 ```
 
-`ping` - allows to send ping command to server, server will answer this command with `ping`
-response.
+`ping` - 允许发送ping命令到服务器，服务器则同样返回`ping`的响应
 
 ```javascript
 message = {
@@ -321,17 +267,9 @@ message = {
 }
 ```
 
-### Responses of client to server commands
+### 服务器发到客户端的命令
 
-As soon as your client sent command to server it should then receive a corresponding response.
-Let's look at those response messages in detail.
-
-TODO: write about responses
-
-### Server to client commands
-
-`message` - new message published into channel current client subscribed to. Response
-for message coming over connection looks like this:
+`message` - 新消息被发到当前客户端订阅的通道，格式如下:
 
 ```javascript
 {
@@ -353,9 +291,7 @@ for message coming over connection looks like this:
 }
 ```
 
-`join` - someone joined a channel current client subscribed to. Note that `join_leave` option must
-be enabled for channel in server configuration to receive this type of messages. `body` of this message
-contains information about new subscribed client.
+`join` - 有新的客户端同样订阅了当前客户端订阅的通道时发生。注意`join_leave`选项在通道配置中必须要启用才能收到这类消息。`body`属性包含了新客户端的信息：
 
 ```javascript
 {
@@ -377,9 +313,7 @@ contains information about new subscribed client.
 }
 ```
 
-`leave` - someone left channel current client subscribed to. Note that `join_leave` option must
-be enabled for channel in server configuration to receive this type of messages. `body` of this message
-contains information about unsubscribed client.
+`leave` - 有客户端取消订阅当前客户端订阅的通道时发生。注意`join_leave`选项在通道配置中必须要启用才能收到这类消息。`body`属性包含了取消订阅的客户端的信息：
 
 ```javascript
 {
@@ -401,14 +335,11 @@ contains information about unsubscribed client.
 }
 ```
 
-### Private channel subscriptions.
+### 私有通道订阅
 
-As you could see successful connect response body has `client` field - a unique connection ID issued
-by Centrifugo to this particular client connection. It's important because it's used when obtaining
-private channel sign.
+注意连接成功返回的`client`属性，这是一个Centrifugo设定的唯一连接ID，用于认证获取私有通道签名。
 
-We've already seen above that in general case (non-private channel subscription) subscription request
-that must be sent by client to Centrifugo looks like this:
+上面已经讲了订阅普通的通道可以用以下的格式命令:
 
 ```javascript
 var message = {
@@ -420,7 +351,7 @@ var message = {
 }
 ```
 
-When subscribing on private channel client must also provide additional fields in `params` object:
+当订阅私有通道时，必须还要额外提供一些信息在`params`属性对象中:
 
 ```javascript
 var message = {
@@ -435,21 +366,7 @@ var message = {
 }
 ```
 
-See [chapter about signs](./tokens_and_signatures.md) to get more knowledge about how to generate such
-private channel sign on your backend side.
+查看 [关于签名的章节](./tokens_and_signatures.md)来了解更多如何认证的信息。
 
-In case of Javascript client we send client ID with private channel names to backend automatically
-in AJAX request so all that developer needs is to check user permissions (as we call backend via
-AJAX from browser user will be properly set by application backend session mechanism), generate
-valid private channel sign and return in response. In case of other clients (for example mobile)
-there is no convenient way (such as AJAX in web) to get data from backend - so it's up to developer
-to decide how he wants to obtain channel sign.
-
-Client library should at least provide mechanism to give developer client ID of current connection
-and mechanism to set `client`, `info` and `sign` fields to subscription request `params`. As client ID
-will change after reconnect every time client wants to subscribe on private channel backend must
-generate new channel sign. So every time client library wants to send private subscription request it
-must first ask application code for new private channel sign.
-
-To be continued...
+客户端库至少要提供一个机制能提到当前连接的客户端ID来设置`params`需要的`client`, `info` 和 `sign`值，注意每次重新连接都会发生变化，所以每次连接前要务必先获取签名。
 

@@ -11,7 +11,7 @@
     * [服务端API](server/api.md)
     * [连接检查](server/connection_check.md)
     * [Tokens和签名](server/tokens_and_signatures.md)
-    * [Client Protocol](server/client_protocol.md)
+    * [客户端协议](server/client_protocol.md)
     * [Signal handling](server/signals.md)
     * [Stats and metrics](server/stats.md)
     * [How recover mechanism works](server/recover.md)
