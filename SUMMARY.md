@@ -14,7 +14,7 @@
     * [客户端协议](server/client_protocol.md)
     * [信号处理](server/signals.md)
     * [状态统计](server/stats.md)
-    * [How recover mechanism works](server/recover.md)
+    * [恢复机制是如何工作的](server/recover.md)
     * [Advanced configuration](server/advanced_configuration.md)
 * [Client libraries](clients/README.md)
     * [JavaScript web browser client](clients/javascript.md)
