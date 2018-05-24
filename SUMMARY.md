@@ -15,7 +15,7 @@
     * [信号处理](server/signals.md)
     * [状态统计](server/stats.md)
     * [恢复机制是如何工作的](server/recover.md)
-    * [Advanced configuration](server/advanced_configuration.md)
+    * [高级配置](server/advanced_configuration.md)
 * [Client libraries](clients/README.md)
     * [JavaScript web browser client](clients/javascript.md)
     * [Mobile and other clients](clients/mobile_and_other.md)

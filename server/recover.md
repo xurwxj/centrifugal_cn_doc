@@ -1,46 +1,24 @@
-# How recover mechanism works
+# 恢复机制是如何工作的
 
-`recover` option available since v1.2.0
+`recover`参数从v1.2.0版本开始提供
 
-This option inspired by Last-Event-ID mechanism [from Eventsource protocol](http://www.w3.org/TR/2012/WD-eventsource-20120426/).
+这个功能选项受Last-Event-ID机制 [来自Eventsource协议](http://www.w3.org/TR/2012/WD-eventsource-20120426/)启发.
 
-Let's describe motivation. We live in non-ideal world and network connection can
-disappear sometimes. While client offline some messages could be sent into channel
-and when client goes online those messages are lost. Centrifugo can help to automatically
-recover reasonable amount of missed messages.
+先说一下动机，我们生活在一个非理想的世界，有时网络会断开。当客户端离线的时候，有些消息可能发到通道中，但在客户端上线时这些消息有可能丢失了。Centrifugo可以自动进行恢复。
 
-There are still cases when Centrifugo can't help – for example if client was disconnected
-for a week or tons of messages were sent into channels since last subscription attempt...
-In these situations client must recover its state with application frontend/backend code help.
+当然也存在Centrifugo不能恢复的情况，比如客户端断开超过了一周，而期间有大量的消息进入...这些场景下客户端只能依赖应用自身的实现来恢复。
 
-But when connection disappeared for a short amount of time then Centrifugo can automatically
-recover missed messages when client resubscribes on channel. For this purpose client provides
-last message ID seen when resubscribing and Centrifugo automatically tries to recover missed
-messages from message history.
+只有客户端离线比较短的时间的情形下，Centrifugo可以自动在客户端重连后恢复丢失的消息。出于这个上的，客户端提供上次的消息ID，Centrifugo将会自动从消息历史中恢复。
 
-Recover option must be used in combination with `history_size` and `history_lifetime`. Both
-`history_size` and `history_lifetime` must be reasonably configured and recover turned on for
-channel (for all channels or for namespace - you decide).
+恢复参数必须要配合`history_size` 和 `history_lifetime`一起使用。`history_size` 和 `history_lifetime`必须进行合理配置，同时通道要启用恢复功能。
 
-Note that sometimes your clients don't need to get missed messages at all. This depends on
-nature of real-time messages you publish. For example you really don't need missed messages
-in case of frequently updated counter with actual value in message. So developer must think
-wisely when he wants to enable this mechanism. For example it can be reasonable to enable
-it if you show comments on page in real-time. In this case when your client goes online it
-receives all missed comments automatically from Centrifugo message history.
+注意，有时你的客户端可能不需要恢复。这些取决于你的发布机制和展现目的，并不是所有场景都需要恢复。
 
-Also note that there are other possible solutions to get missed messages based on your
-application code - you can still manually retrieve message history from Centrifugo or from
-your application backend.
+当然，如果你的应用自身实现了恢复机制，也可以手工从Centrifugo提取或是从你的应用后端中。
 
-Here I'll describe how `recover` option implemented based on interaction between our javascript
-client and Centrifugo server. You don't need to read this to just use `recover` feature
-as all logic below encapsulated into centrifuge-js client.
+下面将说明如果在js客户端和Centrifugo服务器之间如何实现恢复。如果你只是使用，可以跳过下面的内容到下一章节。所有逻辑都在centrifuge-js客户端中.
 
-After client first subscribes on channels it doesn't need any missed messages because he
-didn't miss anything yet. So it sends subscription command to Centrifugo which contains
-channel and `recover` flag set to `false` to indicate that Centrifugo must not search for
-missed messages in message history.
+客户端首次订阅通道时是不需要恢复的，所以发送订阅命令时可以象下面这样，避免Centrifugo去搜索历史消息中是否有需要恢复的消息：
 
 ```
 {
@@ -49,9 +27,7 @@ missed messages in message history.
 }
 ```
 
-Centrifugo subscribes client on channel `news` and answers back to client with subscribe response.
-That response includes field `last` in response body containing last message ID for channel `news`
-that Centrifugo has in message history for channel.
+Centrifugo收到客户端订阅的事件时反馈该通道上次的最后消息id：
 
 ```
 {
@@ -59,10 +35,7 @@ that Centrifugo has in message history for channel.
 }
 ```
 
-Client saves that last message ID for channel and start listening for new messages in channel `news`.
-When new message arrives client get message `uid` value and that value considered as last message
-ID for channel `news`. So when client loses network connection and then resubscribes on channel `news`
-he provides last seen message ID in subscription request.
+客户端得到这个ID后，每次收到一条消息，都会把该消息的id来覆盖，这样当客户端断开的时候可以通过这个id来恢复丢失的消息。
 
 ```
 {
@@ -72,9 +45,7 @@ he provides last seen message ID in subscription request.
 }
 ```
 
-Centrifugo receives this subscription request and tries to find all missed messages looking
-into message history. And then returns all missed messages found to client in subscription
-response body:
+Centrifugo收到恢复的请求后就去消息历史中查找所有能恢复的消息然后返回给客户端:
 
 ```
 {
@@ -82,5 +53,4 @@ response body:
 }
 ```
 
-So client processes those missed messages and continues to listen channel `news` for new
-published messages.
+这样客户端就可以处理这些消息并继续收取该通道的新消息。

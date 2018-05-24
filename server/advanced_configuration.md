@@ -1,90 +1,87 @@
-# Advanced configuration
+# 高级配置
 
-Centrifugo has some options for which default values make sense for most applications. In many case you
-don't need (and you really should not) change them. This chapter is about such options.
+Centrifugo有些配置参数是适用于大部分应用或场景的，基本无须更改，这个章节会讲述这些参数：
 
 #### client_channel_limit
 
-Default: 128
+默认值：128
 
-Sets maximum number of different channel subscriptions single client can have.
-
-Before Centrifugo v1.6.0 default value was 100.
+设置单个客户端可以订阅的最大通道数量，在v1.6.0之前默认值是100.
 
 #### max_channel_length
 
-Default: 255
+默认值：255
 
-Sets maximum length of channel name.
+设置最长的通道名称长度.
 
 #### user_connection_limit
 
-Default: 0
+默认值：0
 
-Maximum number of connections from user (with known ID) to Centrifugo node. By default - unlimited.
+单节点最多已知ID的用户数量，默认是无限的，0就是无限.
 
 #### node_metrics_interval
 
-Default: 60
+默认值：60
 
-Interval in seconds Centrifugo aggregates metrics before making metrics snapshot.
+Centrifugo聚合各种数据的间隔时间，默认60秒.
 
 #### client_request_max_size
 
-Default: 65536
+默认值：65536
 
-Maximum allowed size of request from client in bytes.
+客户端最大的请求内容大小，单位是字节.
 
 #### client_queue_max_size
 
-Default: 10485760
+默认值：10485760
 
-Maximum client message queue size in bytes to close slow reader connections. By default - 10mb.
+客户端最大的消息队列尺寸，单位是字节，超过这个值就关闭缓慢的读取连接，默认值是10兆.
 
 #### sockjs_heartbeat_delay
 
-Default: 0
+默认值：0
 
-Interval in seconds how often to send SockJS h-frames to client. Starting from v1.6.0 we don't use hearbeat SockJS
+发送SockJS h-frames的间隔时间，以秒为单位，从v1.6.0开始我们不再使用SockJS心跳帧，使用了客户端到服务器端的ping来替代。
 frames as we use client to server pings.
 
 #### websocket_compression
 
-Default: false
+默认值：false
 
-Enable websocket compression, see special chapter in docs.
+启用websocket压缩，具体请看相关章节.
 
 #### gomaxprocs
 
-Default: 0
+默认值：0
 
-By default Centrifugo runs on all available CPU cores. If you want to limit amount of cores Centrifugo can utilize in one moment use this option.
+默认Centrifugo使用所有可用的CPU核，但如果你要限制，可以变更这个值，注意不要超过你的cpu核数.
 
-## Advanced endpoint configuration.
+## 高级接入配置.
 
-After you started Centrifugo you have several endpoints available. As soon as you have not provided any extra options you have 3 endpoints by default.
+当你启动Centrifugo后，你有多个接入方式已经可用，默认至少有以下3种接入方式：
 
-#### Default endpoints.
+#### 默认接入.
 
-First is SockJS endpoint - it's needed to serve client connections that use SockJS library:
+SockJS接入 - 它需要客户端使用SockJS库:
 
 ```
 http://localhost:8000/connection
 ```
 
-Next is raw Websocket endpoint to serve client connections that use pure Websocket protocol:
+通过纯Websocket协议的接入方式:
 
 ```
 ws://localhost:8000/connection/websocket
 ```
 
-And finally you have API endpoint to `publish` messages to channels (and execute other available API commands):
+API接入方式来`publish`消息到通道（也支持其它可用的API命令）:
 
 ```
 http://localhost:8000/api/
 ```
 
-By default all endpoints work on port `8000`. You can change it using `port` option:
+默认所有接入方式都工作在端口`8000`上，你可以在配置中变更:
 
 ```
 {
@@ -92,14 +89,13 @@ By default all endpoints work on port `8000`. You can change it using `port` opt
 }
 ```
 
-In production setup you will have your domain name in endpoint addresses above instead of `localhost`. Also if your Centrifugo will be behind proxy or load balancer software you most probably won't have ports in your
-endpoint addresses. What will always be the same as shown above are URL paths: `/connection`, `/connection/websocket`, `/api/`.
+在正式环境，请用你的域名来替换上面的 `localhost`。如果你的Centrifugo在代理或负载均衡后面，你可以在接入地址中不需要加入端口，只需要在域名后面加上上面的URL地址: `/connection`, `/connection/websocket`, `/api/`.
 
-Let's look at possibilities to tweak available endpoints.
+如果有需要，请自行调整上述接入方式.
 
-#### Admin endpoints.
+#### 管理接入.
 
-First is enabling admin endpoints:
+首先在配置中要启用管理接入:
 
 ```
 {
@@ -110,14 +106,13 @@ First is enabling admin endpoints:
 }
 ```
 
-This makes the following endpoint available:
+启用后下面的接入地址才可用:
 
 ```
 ws://localhost:8000/socket
 ```
 
-This is an endpoint for admin websocket connections. In most scenarios it's used only by our builtin web
-interface. You can read about web interface in dedicated chapter. Here we will just show how to enable it:
+这是一个管理方式的websocket连接，在大部分场景下，它只被我们内置的web界面使用，下面我们只说明如果启用这个界面:
 
 ```
 {
@@ -129,19 +124,18 @@ interface. You can read about web interface in dedicated chapter. Here we will j
 }
 ```
 
-After adding `web` option you can visit:
+之后你就可以访问:
 
 ```
 http://localhost:8000/
 ```
 
-And see web interface. You can log into it using `admin_password` value we set above.
+你需要使用`admin_password`的值登录.
 
 
-#### Debug endpoints.
+#### 调试接入.
 
-Next, when Centrifugo started in debug mode some extra debug endpoints become available.
-To start in debug mode add `debug` option to config:
+如果我们要对Centrifugo进行调试，可以参照下面的配置启动调试模式:
 
 ```
 {
@@ -150,26 +144,17 @@ To start in debug mode add `debug` option to config:
 }
 ```
 
-And endpoint:
+得到的调试接入地址如:
 
 ```
 http://localhost:8000/debug/pprof/
 ```
 
-will show you useful info about internal state of Centrifugo instance. This info is especially helpful when troubleshooting.
+这个地址将会展示1个Centrifugo实例的内部状态，当遇到问题的时候可能特别有用。
 
-#### Custom admin and API ports
+#### 自定义管理和API端口
 
-We strongly recommend to not expose admin (web), debug and API endpoints to internet. In case of admin endpoints this step
-provides extra protection to `/socket` endpoint, web interface and debug endpoints. Protecting API endpoint will allow you to use `insecure_api`
-mode to omit signing of each API request.
-
-So it's a good practice to protect admin and API endpoints with firewall. For example you can do this in `location` section of Nginx configuration.
-
-Though sometimes you don't have access to per-location configuration in your proxy/load balancer software. For example
-when using Amazon ELB. In this case you can change ports on which your admin and API endpoints work.
-
-To run admin endpoints on custom port use `admin_port` option:
+我们强烈建议不要暴露管理站点、调试和API接入方式。自定义在一定程度上可以加强保护，通过设置`admin_port`参数来保护管理站点:
 
 ```
 {
@@ -178,19 +163,19 @@ To run admin endpoints on custom port use `admin_port` option:
 }
 ```
 
-So admin socket will work on address:
+地址会变成:
  
 ```
 ws://localhost:10000/socket
 ```
 
-And debug page will be available on new custom admin port too:
+调试地址变成:
 
 ```
 http://localhost:10000/debug/pprof/
 ```
 
-To run API server on it's own port use `api_port` option:
+使用`api_port`参数来配置API接入方式的端口:
 
 ```
 {
@@ -199,7 +184,7 @@ To run API server on it's own port use `api_port` option:
 }
 ```
 
-Now you should send API requests to:
+API请求地址变成:
 
 ```
 http://localhost:10001/api/
