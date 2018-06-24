@@ -1,14 +1,7 @@
-# Client libraries to communicate with Centrifugo
+# 可与Centrifugo通信的客户端库
 
-This chapter is about client libraries. Centrifugo originally created to work with browser
-clients. But Websocket protocol built on top of convenient TCP and is very simple and popular
-so it's very easy to find Websocket client for almost every existing language and write
-client for Centrifugo on top of it. So we have client libraries to work from iOS and Android 
-devices. Also we have some clients for other languages.
+这个章节介绍客户端库。Centrifugo原生支持浏览器客户端，但对于大多数语言来说，基于Websocket进行客户端开发是非常简单及受欢迎的，因为Websocket协议建立在TCP基础上。我们也有Ios和Android的客户端库，当然也有其它语言的。
 
-If you want to help and create client for other languages or contribute into existing ones –
-your help is very appreciated!
+非常感谢，如果您想协助创建其它语言的客户端！
 
-In this section we will look at Javascript client API in detail - it covers almost all aspects 
-you can come across when working with Centrifugo. In other client implementations you have 
-similar APIs - see documentation for specific client.
+这个部分我们将详细介绍js客户端的API，它涵盖了所有与Centrifugo通信的细节。同样你可以使用类似的APIs来实现其它客户端 - 具体可以看相应的客户端文档。

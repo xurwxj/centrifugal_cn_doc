@@ -1,71 +1,65 @@
-Javascript browser client
+Javascript浏览器客户端
 =========================
 
-At this moment you know how Centrifugo server implemented and how it works. It's time to
-connect your web application users to the server from web browser.
+到目前为止，您已经了解Centrifugo服务器是如何实现及工作的。现在可以通过web浏览器连接你的web应用用户到Centrifugo服务器了。
 
-For this purpose javascript client with simple API exists.
+Js客户端就是为了这一目的而存在的。
 
-* [Install and quick start](#install-and-quick-start)
-* [Connection parameters](#connection-parameters)
-* [Configuration parameters](#configuration-parameters)
-* [Client API](#client-api)
-* [Private channels](#private-channels)
-* [Connection check](#connection-check)
+* [安装与快速开始](#install-and-quick-start)
+* [连接参数](#connection-parameters)
+* [配置参数](#configuration-parameters)
+* [客户端API](#client-api)
+* [私有通道](#private-channels)
+* [连接检测](#connection-check)
 
-The source code of javascript client located in [repo on Github](https://github.com/centrifugal/centrifuge-js).
+Js客户端库源代码位于[repo on Github](https://github.com/centrifugal/centrifuge-js).
 
-Javascript client can connect to the server in two ways: using pure Websockets or using
-[SockJS](https://github.com/sockjs/sockjs-client) library to be able to use various
-available fallback transports if client browser does not support Websockets.
+Js客户端库可以有2种方式连接服务器：使用纯粹的Websocket或是[SockJS](https://github.com/sockjs/sockjs-client)库（当浏览器不支持Websocket的时候可以通过它来实现各种回调）。
 
-With javascript client you can:
+使用Js客户端你可以：
 
-* connect your user to real-time server
-* subscribe on channel and listen to all new messages published into this channel
-* get presence information for channel (all clients currently subscribed on channel)
-* get history messages for channel
-* receive join/leave events for channels (when someone subscribes on channel or
-    unsubscribes from it)
-* publish new messages into channels
+* 把你的用户连接到实时通信服务器
+* 订阅通道并且监听所有该通道的新消息
+* 获取通道的在线信息（所有当前订阅该通道的客户端）
+* 获取通道的历史消息
+* 接收通道中加入/离开的事件（当有人订阅或取消订阅的时候）
+* 推送新的消息到通道
 
-*Note, that in order to use presence, history, join/leave and publish – corresponding options
-must be enabled in Centrifugo channel configuration (on top level or for channel namespace).*
+*注意：为了获取通道的在线信息、历史消息、事件、推送，你必须要对通道进行相应的设置
 
-If you are searching for old API docs (`centrifuge-js` < 1.3.0) - [you can find it here](https://github.com/centrifugal/documentation/tree/c69ca51f21c028a6b9bd582afdbf0a5c13331957/client)
+如果你在寻找旧的API文档 (`centrifuge-js` < 1.3.0) - [你可以在这里查看](https://github.com/centrifugal/documentation/tree/c69ca51f21c028a6b9bd582afdbf0a5c13331957/client)
 
 
-## Install and quick start
+## 安装与快速开始
 
-The simplest way to use javascript client is including it into your web page using `script` tag:
+使用Js客户端库的最简单方式是在网页中使用`script` 标签:
 
 ```html
 <script src="centrifuge.js"></script>
 ```
 
-Download client its [from repository](https://github.com/centrifugal/centrifuge-js).
+从[库](https://github.com/centrifugal/centrifuge-js)中下载.
 
-Browser client is also available via `npm` and `bower`. So you can use:
+浏览器客户端也可以通过`npm` 和 `bower`安装:
 
 ```bash
 npm install centrifuge
 ```
 
-Or:
+或:
 
 ```bash
 bower install centrifuge
 ```
 
-If you want to use SockJS you must also import SockJS client before centrifuge.js
+如果你想使用SockJS，你必须要在centrifuge.js引入SockJS
 
 ```html
 <script src="//cdn.jsdelivr.net/sockjs/1.1/sockjs.min.js" type="text/javascript"></script>
 <script src="centrifuge.js" type="text/javascript"></script>
 ```
 
-**If you want to support Internet Explorer < 8** then you also need to include JSON
-polyfill library:
+**如果你想支持ie8以下版本** 你必须要引入JSON polyfill库:
 
 ```html
 <script src="//cdnjs.cloudflare.com/ajax/libs/json3/3.3.2/json3.min.js" type="text/javascript"></script>
@@ -73,9 +67,7 @@ polyfill library:
 <script src="centrifuge.js" type="text/javascript"></script>
 ```
 
-As soon as you included all libraries you can create new `Centrifuge` object instance,
-subscribe on channel and call `.connect()` method to make actual connection to
-Centrifugo server:
+当你引入所有需要的库后，你可以创建新的`Centrifuge`对象实例、订阅通道并且调用`.connect()`方式开始实际的连接:
 
 ```javascript
 <script type="text/javascript">
@@ -96,84 +88,54 @@ Centrifugo server:
 </script>
 ```
 
-In example above we initialize `Centrifuge` object instance, subscribe on channel
-`news`, print all new messages received from channel `news` into console and actually
-make connection to Centrifugo. And that's all code which required for simple real-time
-messaging handling on client side!
+在上面的例子中初始化`Centrifuge`对象实例，订阅了通道`news`, 打印所有收到的新消息并且连接到了Centrifugo服务器。这就是所有从客户端连接到实时服务器需要的代码!
 
-***`Centrifuge` object is an instance of [EventEmitter](https://github.com/Olical/EventEmitter/blob/master/docs/api.md).***
+***`Centrifuge`对象是一个[EventEmitter](https://github.com/Olical/EventEmitter/blob/master/docs/api.md)对象.***
 
-Parameters `url`, `user`, `timestamp` and `token` are required. Let's look at these
-connection parameters and other configuration options in detail.
+参数 `url`, `user`, `timestamp` 和 `token`是必须的，我们来看看这些参数及其它参数介绍。
 
-## Connection parameters
+## 连接参数
 
-As we showed above to initialize `Centrifuge` object you must provide connection
-parameters: `url`, `user`, `timestamp`, `token`, optional `info`.
+在上面我们已经介绍初始化`Centrifuge`对象你必须要提供参数: `url`, `user`, `timestamp`, `token`, 以及可选的 `info`.
 
-**Note that all connection parameters (except url maybe) must come to your Javascript code from
-your application backend**. You can render template with these connection parameters, or you can
-pass them in cookie, or even make an AJAX GET request from your Javascript code to get  `user`,
-`timestamp`, `info` and `token`.
+**注意所有连接参数除url外必须从后端输出**. 你可以通过服务器端渲染、Cookie或AJAX请求来提供`user`,`timestamp`, `info` 和 `token`.
 
-Let's see for what each option is responsible for.
+下面来看每个参数的含义：
 
-#### url (required)
+#### url (必须)
 
-`url` – is an endpoint of Centrifugo server to connect to.
+`url` – 是Centrifugo的连接地址.
 
-If your Centrifugo server sits on domain `centrifugo.example.com` then:
+如果你的Centrifugo使用了域名 `centrifugo.example.com`，那么连接地址为:
 
-* SockJS endpoint will be `http://centrifugo.example.com/connection`
-* Pure Websocket endpoint will be `ws://centrifugo.example.com/connection/websocket`
+* SockJS连接地址是 `http://centrifugo.example.com/connection`
+* 纯粹的Websocket连接地址是 `ws://centrifugo.example.com/connection/websocket`
 
-Remember to include SockJS library on your page when you want to use SockJS.
+如果你的Centrifugo启用了SSL(**建议启用**)，那边连接地址就要必须以`https` (SockJS)或 `wss` (Websocket)开始。
 
-If your Centrifugo works through SSL (**this is recommended btw**) then endpoint
-addresses must start with `https` (SockJS) and `wss` (Websocket) instead of `http`
-and `ws`.
+你也可以设置 `url`是`http://centrifugo.example.com`， Js库会根据你的引入自动检测连接地址并使用SockJS或 Websocket来连接。
 
-You can also set `url` to just `http://centrifugo.example.com` and javascript client will
-detect which endpoint to use (SockJS or Websocket) automatically based on SockJS library availability.
+#### user (必须)
 
-#### user (required)
+`user` **字符串**是你web应用的当前用户ID。**它可以为空，如果用户未登录，但这个时候你必须要为通道启用** `anonymous`接入许可（在Centrifugo中设置`anonymous: true`）。
 
-`user` **string** is your web application's current user ID. **It can be empty if you don't
-have logged in users but in this case you must enable** `anonymous` access option for
-channels in Centrifugo configuration (setting `anonymous: true` on top level or for channel
-namespace).
+注意, **它必须是字符串类型**，哪怕你的应用使用数字作为用户ID，也要转换成字符串。
 
-Note, that **it must be string type** even if your application uses numbers as user ID.
-Just convert that user ID number to string.
+#### timestamp (必须)
 
-#### timestamp (required)
+`timestamp`字符串是连接生成的以秒为单位的UNIX服务器时间。
 
-`timestamp` string is UNIX server time in seconds when connection token (see below)
-was generated.
+注意，大部分语言默认把UNIX时间戳返回为Float类型值或是包含了毫秒。Centrifugo服务器**仅需要以秒为单位的UNIX服务器时间字符串类型**。比如Python就可以通过使用`"%.0f" % time.time()`或`str(int(time.time()))`来得到类似`"1451991486"`的正确值。
 
-Note, that most programming languages by default return UNIX timestamp as float value.
-Or with microseconds included. Centrifugo server **expects only timestamp seconds
-represented as string**. For example for Python to get timestamp in a correct format
-use `"%.0f" % time.time()` (or just `str(int(time.time()))`) so the result be something
-like `"1451991486"`.
+#### token (必须)
 
-#### token (required)
+`token`是你的web应用基于Centrifugo`secret` key, `user` ID, `timestamp` (和可选的`info` - 看下面)生成的加密串。具体可以查看 [Tokens和签名](../server/tokens_and_signatures.md).
 
-`token` is a digest string generated by your web application backend based on Centrifugo
-`secret` key, `user` ID, `timestamp` (and optional `info` - see below).
+**对于Python, Ruby, NodeJS, Go 和 PHP，我们已经在库中提供现成的方法来生成**.
 
-To create token HMAC SHA-256 algorithm is used. To understand how to generate client
-connection token see special chapter [Tokens and signatures](../server/tokens_and_signatures.md).
+正确的token保证了有效的用户ID和时间戳来请求Centrifugo服务器。Token类似于HTTP cookie，客户端必须不要暴露出来，特别是*使用私有通道*的时候。
 
-**For Python, Ruby, NodeJS, Go and PHP we already have functions to generate client
-token in API libraries**.
-
-Correct token guarantees that connection request to Centrifugo contains valid information
-about user ID and timestamp. Token is similar to HTTP cookie, client must never show it
-to anyone else. Also remember that you should consider *using private channels* when working
-with confidential data.
-
-#### info (optional)
+#### info (可选)
 
 You can optionally provide extra parameter `info` when connecting to Centrifugo, i.e.:
 
