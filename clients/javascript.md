@@ -137,7 +137,7 @@ bower install centrifuge
 
 #### info (可选)
 
-You can optionally provide extra parameter `info` when connecting to Centrifugo, i.e.:
+当连接Centrifugo的时候，你可以额外可选的提供参数`info`:
 
 ```javascript
 var centrifuge = new Centrifuge({
@@ -149,24 +149,17 @@ var centrifuge = new Centrifuge({
 });
 ```
 
-`info` is an additional information about connection. It must be **valid encoded JSON string**.
-But to prevent client sending wrong `info` **this JSON string must be used while generating
-token**.
+`info` 是连接的额外信息，必须是 **有效编码的JSON字符串**. 但如果要防止客户端发送错误的`info`， **这个JSON字符串是在生成token过程中必须的**.
 
-If you don't want to use `info` - you can just omit this parameter while connecting to Centrifugo.
-But if you omit it then make sure that info string have not been used in token generation
-(i.e. `info` must be empty string).
+如果你不想使用`info` - 在连接Centrifugo的时候忽略这个参数即可，但要注意如果不使用的话，在生成token过程中不要同样不要使用(`info`必须是空字符串) .
 
-## Configuration parameters
+## 配置参数
 
-Let's also look at optional configuration parameters available when initializing
-`Centrifuge` object instance.
+请参照可选的初始化`Centrifuge`对象实例参数.
 
 #### transports
 
-In case of using SockJS additional configuration parameter can be used - `transports`.
-
-It defines allowed SockJS transports and by default equals
+使用SockJS时的额外配置参数：`transports`. 它定义了允许的SockJS协议及默认匹配
 
 ```javascript
 var centrifuge = new Centrifuge({
@@ -179,10 +172,9 @@ var centrifuge = new Centrifuge({
 });
 ```
 
-i.e. all possible SockJS transports.
+上述代码列出了SockJS 所有可用的协议.
 
-So to say `centrifuge-js` to use only `websocket` and `xhr-streaming` transports when
-using SockJS endpoint:
+如果`centrifuge-js`仅使用`websocket` 和 `xhr-streaming`协议:
 
 ```javascript
 var centrifuge = new Centrifuge({
@@ -197,9 +189,9 @@ var centrifuge = new Centrifuge({
 
 #### sockJS
 
-**new in 1.3.7**. `sockJS` option allows to explicitly provide SockJS client object to Centrifuge client.
+**1.3.7版本中新出**. `sockJS`选项允许提供SockJS客户端对象给Centrifuge客户端.
 
-For example this can be useful if you develop in ES6 using imports.
+比如ES6下.
 
 ```javascript
 import Centrifuge from 'centrifuge'
@@ -217,18 +209,13 @@ var centrifuge = new Centrifuge({
 
 #### debug
 
-`debug` is a boolean option which is `false` by default. When enabled lots of various debug
-messages will be logged into javascript console. Mostly useful for development or
-troubleshooting.
+`debug`是一个布尔值选项，默认是`false`. 启用后，一系列调试信息就会输出到控制台，对于问题定位和解决有比较大的帮助.
 
 #### insecure
 
-`insecure` is a boolean option which is `false` by default. When enabled client will connect
-to server in insecure mode - read about this mode in [special docs chapter](../mixed/insecure_modes.md).
+`insecure` 是一个布尔值选项，默认是`false`. 启用后，客户端将可以在非安全模式中连接服务器，可以阅读[特定章节](../mixed/insecure_modes.md).
 
-This option nice if you want to use Centrifugo for quick real-time ideas prototyping, demos as
-it allows to connect to Centrifugo without `token`, `timestamp` and `user`. And moreover without
-application backend! Please, [read separate chapter about insecure modes](../mixed/insecure_modes.md).
+这个选项对于需要快速连接Centrifugo建立演示时非常有用，它允许无须`token`, `timestamp` 和 `user`连接Centrifugo. 更多信息请阅读[特定章节](../mixed/insecure_modes.md).
 
 #### retry
 
