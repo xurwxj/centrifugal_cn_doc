@@ -219,59 +219,46 @@ var centrifuge = new Centrifuge({
 
 #### retry
 
-When client disconnected from server it will automatically try to reconnect using exponential
-backoff algorithm to get interval between reconnect attempts which value grows exponentially.
-`retry` option sets minimal interval value in milliseconds. Default is `1000` milliseconds.
+当客户端断开连接的时候，它可以自动重连，`retry`这个参数可以设置最小的重连尝试时间，以毫秒为单位，默认是`1000`毫秒.
 
 #### maxRetry
 
-`maxRetry` sets upper interval value limit when reconnecting. Or your clients will never reconnect
-as exponent grows very fast:) Default is `20000` milliseconds.
+`maxRetry` 设置最大的重连尝试时间，以毫秒为单位，当超过这个时间后，客户端将不再尝试重连，默认是`20000`毫秒.
 
 #### resubscribe
 
-`resubscribe` is boolean option that allows to disable automatic resubscribing on
-subscriptions. By default it's `true` - i.e. you don't need to manually handle
-subscriptions resubscribing and no need to wait `connect` event triggered (first
-time or when reconnecting) to start subscribing. `centrifuge-js` will by default
-resubscribe automatically when connection established.
+`resubscribe` 是一个布尔值选项，可以用来禁用自动重新订阅，默认是`true`。比如你不需要的自动控制重新订阅并且不等`connect`事件触发（首次或重连的时候）就开始订阅. `centrifuge-js`默认在连接建立时会自动重新订阅.
 
 #### server
 
-`server` is SockJS specific option to set server name into connection urls instead
-of random chars. See SockJS docs for more info.
+`server` 是SockJS特定的选项，允许在连接urls中设置服务器名字来替代默认的随机字符，详情请查看SockJS文档.
 
 #### authEndpoint
 
-`authEndpoint` is url to use when sending auth request for authorizing subscription
-on private channel. By default `/centrifuge/auth/`. See also useful related options:
+`authEndpoint`授权验证url，用于订阅私有通道时发送订阅验证请求，默认是`/centrifuge/auth/`. 同时请注意以下相关的有用选项:
 
-* `authHeaders` - map of headers to send with auth request (default `{}``)
-* `authParams` - map of params to include in auth url (default `{}`)
-* `authTransport` - transport to use for auth request (default `ajax`, possible value `jsonp`)
+* `authHeaders` - 验证请求时的头信息map (默认值是 `{}`)
+* `authParams` - 验证请求url中的参数map (默认值是 `{}`)
+* `authTransport` - 验证请求的协议 (默认值是 `ajax`, 另外一个可选值是 `jsonp`)
 
 #### refreshEndpoint
 
-`refreshEndpoint` is url to use when refreshing client connection parameters when
-connection check mechanism enabled in Centrifugo configuration. See also related
-options:
+`refreshEndpoint` Centrifugo连接检测机制启用时的刷新客户端连接参数url. 与其相关的选项有:
 
-* `refreshHeaders` - map of headers to send with refresh request (default `{}``)
-* `refreshParams` - map of params to include in refresh url (default `{}`)
-* `refreshTransport` - transport to use for refresh request (default `ajax`, possible value `jsonp`)
-* `refreshData` - send extra data in body (as JSON payload) when sending AJAX POST refresh request.
-* `refreshAttempts` - limit amount of refresh requests before giving up (by default `null` - unlimited)
-* `refreshFailed` - callback function called when `refreshAttempts` came to the end. By default `null` - i.e. nothing called.
+* `refreshHeaders` - 刷新请求的头信息map (默认值是 `{}``)
+* `refreshParams` - 刷新请求url中的参数map (默认值是 `{}`)
+* `refreshTransport` - transport to use for refresh request (默认值是 `ajax`, 另外一个可选值是 `jsonp`)
+* `refreshData` - AJAX POST请求时额外发送的信息(作为 JSON 格式).
+* `refreshAttempts` - 刷新请求的重试次数 (默认值是 `null` - 无限)
+* `refreshFailed` - 当请求达到 `refreshAttempts`设置的限制时的处理回调. 默认值是 `null` - 不进行处理.
 
-## Client API
+## 客户端API
 
-When `Centrifuge` object properly initialized then it is ready to start communicating
-with server.
+当 `Centrifuge`对象初始化后就可以开始与服务器通信了.
 
-#### connect method
+#### 连接方法
 
-As we showed before, we must call `connect()` method to make an actual connection
-request to Centrifugo server:
+如之前所讲，调用`connect()`方法来连接Centrifugo:
 
 ```javascript
 var centrifuge = new Centrifuge({
@@ -281,15 +268,11 @@ var centrifuge = new Centrifuge({
 centrifuge.connect();
 ```
 
-`connect()` calls actual connection request to server with connection parameters and
-configuration options you provided during initialization.
+`connect()` 通过初始化过程中指定的连接参数和配置选项进行调用.
 
-#### connect event
+#### 连接事件
 
-After connection will be established and client credentials you provided authorized
-then `connect` event on `Centrifuge` object instance will be called.
-
-You can listen to this setting event listener function on `connect` event:
+当连接建立后，你可以监听`connect`事件:
 
 ```javascript
 centrifuge.on('connect', function(context) {
@@ -297,7 +280,7 @@ centrifuge.on('connect', function(context) {
 });
 ```
 
-What's in `context`:
+`context`的内容如下面例子所示类似:
 
 ```javascript
 {
@@ -307,15 +290,13 @@ What's in `context`:
 }
 ```
 
-* `client` – client ID Centrifugo gave to this connection (string)
-* `transport` – name of transport used to establish connection with server (string)
-* `latency` – latency in milliseconds (int). This measures time passed between sending
-    `connect` client protocol command and receiving connect response. New in 1.3.1
+* `client` – Centrifugo给予的本连接客户端ID (字符串格式)
+* `transport` – 连接建立的协议名称 (字符串格式)
+* `latency` – 建立的持续时长 (整数格式，毫秒). 从发送连接请求到得到响应的时长，1.3.1新出的值.
 
-#### disconnect event
+#### 断开事件
 
-`disconnect` event fired on centrifuge object every time client disconnects for
-some reason. This can be network disconnect or disconnect initiated by Centrifugo server.
+`disconnect`是每次客户端断开连接时触发，有可能是网络断开或是被Centrifugo服务器断开.
 
 ```javascript
 centrifuge.on('disconnect', function(context) {
@@ -323,7 +304,7 @@ centrifuge.on('disconnect', function(context) {
 });
 ```
 
-What's in `context`?
+`context`的内容如下面例子所示类似:
 
 ```javascript
 {
@@ -332,22 +313,13 @@ What's in `context`?
 }
 ```
 
-* `reason` – the reason of client's disconnect (string)
-* `reconnect` – flag indicating if client will reconnect or not (boolean)
+* `reason` – 断开的原因 (字符串格式)
+* `reconnect` – 客户端将是否重连 (布尔值格式)
 
 
-#### error event
+#### 错误事件
 
-`error` event called every time on centrifuge object when response with error received.
-In normal workflow it will never be happen. But it's better to log these errors to detect
-where problem with connection is.
-
-This event handler is a general error messages sink - it will receives all messages received
-from Centrifugo containing error so it could also receive message resulting in `error` event
-for subscription (see below). The difference is that this event handler exists mostly for
-logging purposes to help developer fix possible problems - while other errors (subscription
-error or `publish`, `presence`, `history` call errors) can be theoretically handled to retry
-call or resubscribe maybe.
+`error`在得到错误响应的时候触发，正常是不会出现的，但对于记录异常的问题非常有用，同时对于订阅、`publish`, `presence`, `history`调用错误时可以有助于重试或重新订阅.
 
 ```javascript
 centrifuge.on('error', function(error) {
@@ -356,7 +328,7 @@ centrifuge.on('error', function(error) {
 });
 ```
 
-What's in `error`?
+`error`的内容如下面例子所示类似:
 
 ```javascript
 {
@@ -368,37 +340,28 @@ What's in `error`?
 }
 ```
 
-`message` – message from server containing error. It's a raw protocol message resulted in
-error event because it contains `error` field. At bare minimum it's recommended to log these
-errors. In normal workflow such errors should never exist and must be a signal for developer
-that something goes wrong.
+`message` – 服务器返回的消息，包含了`error`字段. 
 
 
-#### disconnect method
+#### 断开连接的方法
 
-In some cases you may need to disconnect your client from server, use `disconnect` method to
-do this:
+当你需要断开与服务器的连接时，调用`disconnect`:
 
 ```javascript
 centrifuge.disconnect();
 ```
 
-After calling this client will not try to reestablish connection periodically. You must call
-`connect` method manually again.
+注意，调用这个方法后将不会再自动重连，需要你手工调用`connect`方法去重新建立连接.
 
 
-## Subscriptions
+## 订阅
 
-Of course being just connected is useless. What we usually want from Centrifugo is to
-receive new messages published into channels. So our next step is `subscribe` on channel
-from which we want to receive real-time messages.
+下面讲如何接收实时消息
 
 
-### subscribe method
+### 订阅方法
 
-To subscribe on channel we must use `subscribe` method of `Centrifuge` object instance.
-
-The simplest usage that allow to subscribe on channel and listen to new messages is:
+要订阅一个通道，我们必须使用`subscribe`方法来获取新的消息:
 
 ```javascript
 var subscription = centrifuge.subscribe("news", function(message) {
@@ -407,32 +370,16 @@ var subscription = centrifuge.subscribe("news", function(message) {
 });
 ```
 
-And that's all! For lots of cases it's enough! But let's look at possible events that
-can happen with subscription:
+就这么简单！可同时处理在订阅时可能的事件:
 
-* `message` – called when new message received (callback function in our previous example is `message`
-    event callback btw)
-* `join` – called when someone joined channel
-* `leave` – called when someone left channel
-* `subscribe` – called when subscription on channel successful and acknowledged by Centrifugo
-    server. It can be called several times during javascript code lifetime as browser client
-    automatically resubscribes on channels after successful reconnect (caused by temporary
-    network disconnect for example or Centrifugo server restart).
-* `error` – called when subscription on channel failed with error. It can called several times
-    during javascript code lifetime as browser client automatically resubscribes on channels
-    after successful reconnect (caused by temporary network disconnect for example or Centrifugo
-    server restart).
-* `unsubscribe` – called every time subscription that was successfully subscribed
-    unsubscribes from channel (can be caused by network disconnect or by calling
-    `unsubscribe` method of subscription object)
+* `message` – 新消息接收到时的事件调用
+* `join` – 有人加入通道时调用
+* `leave` – 有人离开通道时调用
+* `subscribe` – 订阅通道成功时，这个可以被多次调用.
+* `error` – 订阅失败时的错误处理调用.
+* `unsubscribe` – 取消订阅时的调用
 
-Don't be frightened by amount of events available. In most cases you only need some of them
-until you need full control to what happens with your subscriptions. We will look at format
-of messages for this event callbacks later below.
-
-There are 2 ways setting callback functions for events above.
-
-First is providing object containing event callbacks as second argument to `subscribe` method.
+大部分情况下，你只需要处理部分事件即可，下面看一下各种事件的处理格式. 有2种设置回调的方式来处理事件，一是提供回调对象作为`subscribe` 方法的第2个参数.
 
 ```javascript
 var callbacks = {
@@ -465,8 +412,7 @@ var callbacks = {
 var subscription = centrifuge.subscribe("news", callbacks);
 ```
 
-Another way is setting callbacks using `on` method of subscription. Subscription object
-is event emitter so you can simply do the following:
+另外一个是使用 `on`方法来处理:
 
 ```javascript
 var subscription = centrifuge.subscribe("news");
@@ -476,14 +422,12 @@ subscription.on("subscribe", subscribeHandlerFunction);
 subscription.on("error", subscribeErrorHandlerFunction);
 ```
 
-***Subscription objects are instances of [EventEmitter](https://github.com/Olical/EventEmitter/blob/master/docs/api.md).***
+***订阅对象是[EventEmitter]的实例(https://github.com/Olical/EventEmitter/blob/master/docs/api.md).***
 
 
-### join and leave events of subscription
+### 订阅的加入和离开事件
 
-As you know you can enable `join_leave` option for channel in Centrifugo configuration.
-This gives you an opportunity to listen to `join` and `leave` events in those channels.
-Just set event handlers on `join` and `leave` events of subscription.
+可以掌控通道订阅的`join` 和 `leave` 事件：
 
 ```javascript
 var subscription = centrifuge.subscribe("news", function(message) {
@@ -496,14 +440,13 @@ var subscription = centrifuge.subscribe("news", function(message) {
 ```
 
 
-### subscription event context formats
+### 订阅事件上下文内容格式
 
-We already know how to listen for events on subscription. Let's look at format of
-messages event callback functions receive as arguments.
+下面来看一下订阅事件各种回调的上下文内容格式.
 
 #### format of message event context
 
-Let's look at message format of new message received from channel:
+新消息的事件上下文内容格式:
 
 ```javascript
 {
@@ -513,10 +456,7 @@ Let's look at message format of new message received from channel:
 }
 ```
 
-I.e. `data` field contains actual data that was published.
-
-Message can optionally contain `client` field (client ID that published message) - if
-it was provided when publishing new message:
+I.e. `data`包含了实际发送的内容. 消息有可能多包含`client` 字段 (客户端ID):
 
 ```javascript
 {
@@ -527,8 +467,7 @@ it was provided when publishing new message:
 }
 ```
 
-And it can optionally contain additional client `info` in case when this message was
-published by javascript client directly using `publish` method (see details below):
+也有可能多包含了`info`字段，特别是这个消息是由js客户端直接使用`publish` 方法发送时:
 
 ```javascript
 {
@@ -546,7 +485,7 @@ published by javascript client directly using `publish` method (see details belo
 ```
 
 
-#### format of join/leave event message
+#### 加入/离开事件上下文内容格式
 
 I.e. `on("join", function(message) {...})` or `on("leave", function(message) {...})`
 
@@ -562,10 +501,10 @@ I.e. `on("join", function(message) {...})` or `on("leave", function(message) {..
 }
 ```
 
-`default_info` and `channel_info` exist in message only if not empty.
+`default_info` 和 `channel_info` 只有在不为空的时候才有.
 
 
-#### format of subscribe event context
+#### 订阅事件上下文内容格式
 
 I.e. `on("subscribe", function(context) {...})`
 
@@ -576,10 +515,10 @@ I.e. `on("subscribe", function(context) {...})`
 }
 ```
 
-`isResubscribe` – flag showing if this was initial subscribe (`false`) or resubscribe (`true`)
+`isResubscribe` – 表示是首次订阅 (`false`) 还是重新订阅 (`true`)
 
 
-#### format of subscription error event context
+#### 订阅错误事件上下文内容格式
 
 I.e. `on("error", function(err) {...})`
 
@@ -592,12 +531,12 @@ I.e. `on("error", function(err) {...})`
 }
 ```
 
-`error` - error description
-`advice` - optional advice (`retry` or `fix` at moment)
-`isResubscribe` – flag showing if this was initial subscribe (`false`) or resubscribe (`true`)
+`error` - 错误描述
+`advice` - 可选的建议 (`retry` 或 `fix` )
+`isResubscribe` – 表示是首次订阅 (`false`) 还是重新订阅 (`true`)
 
 
-#### format of unsubscribe event context
+#### 取消订阅事件上下文内容格式
 
 I.e `on("unsubscribe", function(context) {...})`
 
@@ -607,14 +546,12 @@ I.e `on("unsubscribe", function(context) {...})`
 }
 ```
 
-I.e. it contains only `channel` at moment.
+I.e. 只有 `channel` 这一项内容.
 
 
-### presence method of subscription
+### 订阅的在线状态方法
 
-`presence` allows to get information about clients which are subscribed on channel at
-this moment. Note that this information is only available if `presence` option enabled
-in Centrifugo configuration for all channels or for channel namespace.
+`presence`允许获取当前订阅该通道的客户端信息，注意只有相应设置启用时才能获取.
 
 ```javascript
 var subscription = centrifuge.subscribe("news", function(message) {
@@ -628,10 +565,7 @@ subscription.presence().then(function(message) {
 });
 ```
 
-`presence` is internally a promise that will be resolved with data or error only
-when subscription actually subscribed.
-
-Format of success callback `message`:
+`presence`以promise方式，如上述代码一样使用，成功时的`message`格式内容为:
 
 ```javascript
 {
@@ -651,10 +585,7 @@ Format of success callback `message`:
 }
 ```
 
-As you can see presence data is a map where keys are client IDs and values are objects
-with client information.
-
-Format of `err` in error callback:
+错误回调中的`err`的内容格式:
 
 ```javascript
 {
@@ -663,11 +594,11 @@ Format of `err` in error callback:
 }
 ```
 
-* `error` – error description (string)
-* `advice` – error advice (string, "fix" or "retry" at moment)
+* `error` – 错误描述 (字符串格式))
+* `advice` – 处理建议 (字符串格式, 当前只有"fix"或 "retry")
 
 
-### history method of subscription
+### 订阅历史方法
 
 `history` method allows to get last messages published into channel. Note that history
 for channel must be configured in Centrifugo to be available for `history` calls from
