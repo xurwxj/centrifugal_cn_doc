@@ -1,9 +1,8 @@
-# RPM and DEB packages
+# RPM和DEB包
 
-Every time we make new Centrifugo release we upload rpm and deb packages for
-popular linux distributions on [packagecloud.io](https://packagecloud.io/FZambia/centrifugo).
+每次我们发布Centrifugo新版，我们都会上传rpm和deb包在[packagecloud.io](https://packagecloud.io/FZambia/centrifugo)上.
 
-Currently we support versions of the following distributions:
+当前支持的发行版本有以下:
 
 * 64-bit Debian 7 Wheezy
 * 64-bit Debian 8 Jessie
@@ -12,12 +11,6 @@ Currently we support versions of the following distributions:
 * 64-bit Centos 7
 * 64-bit Centos 6
 
-See [full list of available packages](https://packagecloud.io/FZambia/centrifugo) and
-[installation instructions](https://packagecloud.io/FZambia/centrifugo/install).
+查看 [完整的可用包列表](https://packagecloud.io/FZambia/centrifugo) 和[安装指南](https://packagecloud.io/FZambia/centrifugo/install).
 
-Also note that if your linux distro is not in list you can ask us to package
-for it or just download appropriate package from packagecloud that fits your
-distribution.
-
-Centrifugo also works on 32-bit architectures, but we don't support packaging for it
-as 64-bit is more convenient for servers today.
+注意，如果你的发行版本不在列表里，你可以下载相对合适的。Centrifugo支持在32位环境下工作，但我们并没有为它打包.

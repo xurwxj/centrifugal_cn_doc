@@ -1,20 +1,20 @@
-# Docker image
+# Docker镜像
 
-Centrifugo server has docker image [available on Docker Hub](https://hub.docker.com/r/centrifugo/centrifugo/).
+Centrifugo拥有 [Docker镜像](https://hub.docker.com/r/centrifugo/centrifugo/).
 
 ```
 docker pull centrifugo/centrifugo
 ```
 
-Run:
+运行:
 
 ```bash
 docker run --ulimit nofile=65536:65536 -v /host/dir/with/config/file:/centrifugo -p 8000:8000 centrifugo/centrifugo centrifugo -c config.json
 ```
 
-Note that docker allows to set nofile limits in command-line arguments.
+注意，允许在启动时设置nofile限制.
 
-To run with admin web interface:
+运行管理界面:
 
 ```bash
 docker run --ulimit nofile=65536:65536 -v /host/dir/with/config/file:/centrifugo -p 8000:8000 centrifugo/centrifugo centrifugo -c config.json --web

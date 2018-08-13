@@ -1,20 +1,10 @@
-# Nginx configuration
+# Nginx配置
 
-Although it's possible to  use Centrifugo without any reverse proxy before it,
-it's still a good idea to keep Centrifugo behind mature reverse proxy to deal with
-edge cases when handling HTTP/Websocket connections from the wild. Also you probably
-want some sort of load balancing eventually between Centrifugo nodes so that proxy
-can be such a balancer too.
+虽然可以不用代理直接使用Centrifugo ，但从可用性的角度考虑，建议使用代理服务器，这里介绍[Nginx](http://nginx.org/)配置来结合Centrifugo.
 
-In this section we will look at [Nginx](http://nginx.org/) configuration to deploy Centrifugo.
+Nginx最小版本要求是 – **1.3.13**，因为它是首个能支持Websocket代理的. Centrifugo可以运行在自己的域名或是子目录下(比如 `/centrifugo`).
 
-Minimal Nginx version – **1.3.13** because it was the first version that can proxy
-Websocket connections.
-
-There are 2 ways: running Centrifugo server as separate service on its own
-domain or embed it to a location of your web site (for example to `/centrifugo`).
-
-### separate domain for Centrifugo
+### Centrifugo运行在不同域名下
 
 ```
 upstream centrifugo {
@@ -95,8 +85,7 @@ server {
 }
 ```
 
-If you want to use web interface then you should also add `/socket` location
-to handle admin websocket connections:
+支持管理界面的`/socket` 连接:
 
 ```
     location /socket {
@@ -113,7 +102,7 @@ to handle admin websocket connections:
     }
 ```
 
-### embed to a location of web site
+### 运行在子目录下
 
 ```
 upstream centrifugo {
@@ -183,25 +172,11 @@ server {
 
 ### sticky
 
-You may be noticed commented `sticky;` directive in nginx upstream configuration.
-
-When using SockJS and client connects to Centrifugo - SockJS session created - and
-to communicate client must send all next requests to the same upstream backend.
-
-In this configuration we use `ip_hash;` directive to proxy clients with the same ip
-address to the same upstream backend.
-
-But `ip_hash;` is not the best choice in this case, because there could be situations
-where a lot of different browsers are coming with the same IP address (behind proxies)
-and the load balancing system won't be fair. Also fair load balancing does not work
-during development - when all clients connecting from localhost.
-
-So the best solution would be using something like [nginx-sticky-module](https://bitbucket.org/nginx-goodies/nginx-sticky-module-ng/overview)
-which uses setting a special cookie to track the upstream server for client.
+你可能注意到`sticky;` nginx的上行流设置，为保证每次连接到的是同一台Centrifugo，我们使用`ip_hash;`参数，但它并不是最佳的，因为有可能有很多客户端连接是来自于同1个ip的，因此最好的解决方案是[nginx-sticky-module](https://bitbucket.org/nginx-goodies/nginx-sticky-module-ng/overview)，通过特殊的cookie来保存客户端的连接追踪.
 
 ### worker_connections
 
-You may also need to update `worker_connections` option of Nginx:
+另外要根据连接数来优化Nginx的`worker_connections`:
 
 ```
 events {
@@ -209,6 +184,6 @@ events {
 }
 ```
 
-### upstream keepalive
+### 上行流的长连接
 
-See chapter about operating system tuning for more details.
+请查看操作系统优化的相关知识.

@@ -1,28 +1,18 @@
-# TLS certificates
+# TLS证书
 
-TLS/SSL layer is very important not only for securing your connections but also to increase a
-chance to establish Websocket connection. **In most situations you will put TLS termination task
-on your reverse proxy/load balancing software such as Nginx**.
+TLS/SSL 层对于安全或代理来说都很重要，这里有2种方式来实现: 
+- 使用TLS `cert` 和 `key` 文件
+- 使用自动生成的证书[ACME](https://ietf-wg-acme.github.io/acme/) ，当前只有[Let's Encrypt](https://letsencrypt.org/) 提供.
 
-There are situations though when you want to serve secure connections by Centrifugo itself.
+### 使用 crt 和 key 文件
 
-There are two ways to do this: using TLS certificate `cert` and `key` files that you've got
-from your CA provider or using automatic certificate handling via [ACME](https://ietf-wg-acme.github.io/acme/) provider (only
-[Let's Encrypt](https://letsencrypt.org/) at this moment).
-
-### Using crt and key files
-
-In first way you already have `cert` and `key` files. For development you can create self-signed
-certificate - see [this instruction](https://devcenter.heroku.com/articles/ssl-certificate-self) as
-example.
-
-Then to start Centrifugo use the following command:
+如果要生成自定义证书，[请参照](https://devcenter.heroku.com/articles/ssl-certificate-self)。启动Centrifugo时使用以下参数:
 
 ```
 ./centrifugo --config=config.json --ssl --ssl_key=server.key --ssl_cert=server.crt
 ```
 
-Or just use configuration file:
+或者在配置文件中设置:
 
 ```json
 {
@@ -33,15 +23,15 @@ Or just use configuration file:
 }
 ```
 
-And run:
+然后运行:
 
 ```
 ./centrifugo --config=config.json
 ```
 
-### Automatic certificates
+### 自动证书
 
-For automatic certificates from Let's Encrypt add into configuration file:
+可在配置中设置Let's Encrypt相关信息:
 
 ```
 {
@@ -53,26 +43,16 @@ For automatic certificates from Let's Encrypt add into configuration file:
 }
 ```
 
-`ssl_autocert` says Centrifugo that you want automatic certificate handling using ACME provider.
+`ssl_autocert`是否启用自动证书获取.
 
-`ssl_autocert_host_whitelist` is a string with your app domain address. This can be comma-separated
-list. It's optional but recommended for extra security.
+`ssl_autocert_host_whitelist` 证书对应的域名，这里可以以逗号分隔输入多个域名.
 
-`ssl_autocert_cache_dir` is a path to a folder to cache issued certificate files. This is optional
-but will increase performance.
+`ssl_autocert_cache_dir` 证书保存的缓存目录.
 
-`ssl_autocert_email` is optional - it's an email address ACME provider will send notifications
-about problems with your certificates.
+`ssl_autocert_email` 可选，用于发证机构与你联系.
 
-When configured correctly and your domain is valid (`localhost` will not work) - certificates
-will be retrieved on first request to Centrifugo.
+当配置正确后，启动就能启用合适的证书，并且这个证书是会自动更新的。
+另外要注意的是从v1.6.5开始，允许Centrifugo来支持TLS的客户端连接，比如一些旧的浏览器兼容，象Chrome 49 on Windows XP and IE8 on XP:
 
-Also Let's Encrypt certificates will be automatically renewed.
-
-There are tho options (new in v1.6.5) that allow Centrifugo to support TLS client connections from older
-browsers such as Chrome 49 on Windows XP and IE8 on XP:
-
-* `ssl_autocert_force_rsa` - this is a boolean option, by default `false`. When enabled it forces
-    autocert manager generate certificates with 2048-bit RSA keys.
-* `ssl_autocert_server_name` - string option, allows to set server name for client handshake hello.
-    This can be useful to deal with old browsers without SNI support - see [comment](https://github.com/centrifugal/centrifugo/issues/144#issuecomment-279393819)
+* `ssl_autocert_force_rsa` - 布尔值，默认是`false`。启用后会自动通过2048-bit RSA进行认证.
+* `ssl_autocert_server_name` - 字符串，用于握手时的服务器名称指定，对于旧浏览器没有SNI支持的特别有用 - [这里查看](https://github.com/centrifugal/centrifugo/issues/144#issuecomment-279393819)
