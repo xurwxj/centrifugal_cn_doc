@@ -1,45 +1,33 @@
-# Server API libraries
+# Server端API库
 
-As you could see in Centrifugal overview there are several officially supported libraries
-for communicating with server API at moment.
+Centrifugal已经拥有多种服务器端的api库，如果你没找到，你也可以通过Redis引擎或自行实现[参照文档](../server/api.md).
 
-If you have not found a library for your favorite language – you can go completely
-without it. You have an option to publish via Redis Engine or just implement
-calls to HTTP API yourself - [see server API description](../server/api.md).
-
-Also note that [Cent](https://github.com/centrifugal/cent) contains everything you
-need to communicate with server API - so if you have questions - just look at
-its source code as reference - as it is written in Python it's very easy to read
-and understand. And there are few lines of code actually.
+另外[Cent](https://github.com/centrifugal/cent)包含所有你需要的服务器端api，特别是对python来说.
 
 ### Python
 
-Python HTTP API client located [on Github](https://github.com/centrifugal/cent).
+Python HTTP API [api库](https://github.com/centrifugal/cent).
 
-It can also be used as command-line tool to send various commands to Centrifugo.
+它支持命令行使用Centrifugo.
 
 ### PHP
 
-We have two actual API clients for PHP.
+我们有2个PHP的库.
 
-The first one is HTTP API client created by Dmitriy Soldatenko. You can find it [on Github](https://github.com/sl4mmer/phpcent).
-It's simple to use - just follow its README and enjoy communicating with Centrifugo HTTP API.
+一是Dmitriy Soldatenko创建的[HTTP API](https://github.com/sl4mmer/phpcent)， 使用非常简单.
 
-Another API client developed by [Oleh Ozimok](https://github.com/oleh-ozimok) - [php-centrifugo](https://github.com/oleh-ozimok/php-centrifugo).
-It allows to work with Redis Engine API queue. See more detailed description in library README.
+另外一个是[Oleh Ozimok](https://github.com/oleh-ozimok)开发的[php-centrifugo](https://github.com/oleh-ozimok/php-centrifugo)， 使用Redis引擎.
 
 ### Ruby
 
-Ruby client located [on Github](https://github.com/centrifugal/rubycent).
-
-It's very simple to use - just follow its README and enjoy communicating with API.
+Ruby[库](https://github.com/centrifugal/rubycent).
 
 
 ### NodeJS
 
-NodeJS client located [on Github](https://github.com/centrifugal/jscent).
+NodeJS[库](https://github.com/centrifugal/jscent).
 
-Basic example:
+基本使用样例:
 
 ```javascript
 Client = require("jscent");
@@ -51,16 +39,13 @@ c.publish("$public:chat", {"input": "test"}, function(err, resp){console.log(err
 
 ### Go
 
-Go HTTP API client located [on Github](https://github.com/centrifugal/gocent).
+Go[HTTP API库](https://github.com/centrifugal/gocent).
 
 
 ### Java
 
-There is third party libraries originally built for Centrifuge - predecessor of Centrifugo.
-They are not updated to work with Centrifugo, but can be used as starting point for
-your communication code.
+是第三方的，似乎并未保持持续的更新。
 
-* [API library for Java](https://github.com/mcoetzee/centrifuge-publisher) by Markus Coetzee
+* [API library for Java](https://github.com/mcoetzee/centrifuge-publisher)，由Markus Coetzee创建
 
-To work with Centrifugo client above must use `sha256` HMAC algorithm instead of `md5` and
-do not use project ID (project ID does not exist anymore).
+要跟Centrifugo客户端协同，注意要使用`sha256` HMAC算法而不是`md5`，并且不要使用project ID (project ID已经被废弃了).

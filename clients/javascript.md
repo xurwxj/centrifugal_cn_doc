@@ -600,9 +600,7 @@ subscription.presence().then(function(message) {
 
 ### 订阅历史方法
 
-`history` method allows to get last messages published into channel. Note that history
-for channel must be configured in Centrifugo to be available for `history` calls from
-client.
+`history`方法允许获取通道中的最新消息，但注意一定要在Centrifugo配置进行设置.
 
 ```javascript
 var subscription = centrifuge.subscribe("news", function(message) {
@@ -617,7 +615,7 @@ subscription.history().then(function(message) {
 });
 ```
 
-Success callback `message` format:
+成功后的回调`message`格式为:
 
 ```javascript
 {
@@ -637,35 +635,18 @@ Success callback `message` format:
 }
 ```
 
-Where `data` is an array of messages published into channel.
+`data`是通道中的消息数组.其它额外的字段，比如 `client`, `info`这些如果在原始消息中的字段也可以包括在其中.
 
-Note that also additional fields can be included in messages - `client`, `info` if those
-fields were in original messages.
-
-`err` format – the same as for `presence` method.
+`err`格式是跟`presence` 方法一样的.
 
 
-### publish method of subscription
+### 订阅后的发布方法
 
-`publish` method of subscription object allows to publish data into channel directly
-from client. The main idea of Centrifugo is server side only push. Usually your application
-backend receives new event (for example new comment created, someone clicked like button
-etc) and then backend posts that event into Centrifugo over API. But in some cases you may
-need to allow clients to publish data into channels themselves. This can be used for demo
-projects, when prototyping ideas for example, for personal usage. And this allow to make
-something with real-time features without any application backend at all. Just javascript
-code and Centrifugo.
+`publish`允许客户端在订阅通道后直接发布消息到通道中。Centrifugo本身的主旨是服务器端的push。允许客户端发布可以在某些场景中贴合实际，并有一定的实时效果.
 
-**So to emphasize: using client publish is not an idiomatic Centrifugo usage. It's not for
-production applications but in some cases (demos, personal usage, Centrifugo as backend
-microservice) can be justified and convenient. In most real-life apps you need to send new
-data to your application backend first (using the convenient way, for example AJAX request
-in web app) and then publish data to Centrifugo over Centrifugo API.**
+**要特别强调的：使用客户端发布并非推荐的Centrifugo使用方式，并不是生产推荐的方式，只是为了某些场景提供便利而已，在众多实时应用中，新消息应该先发到后端再通过Centrifugo发布.**
 
-To do this you can use `publish` method. Note that just like presence and history publish
-must be allowed in Centrifugo configuration for all channels or for channel namespace. When
-using `publish` data will go through Centrifugo to all clients in channel. Your application
-backend won't receive this message.
+当在客户端使用`publish`方法时，你的应用不会收到这些消息，除非你制定特别的逻辑.
 
 ```javascript
 var subscription = centrifuge.subscribe("news", function(message) {
@@ -680,37 +661,26 @@ subscription.publish({"input": "hello world"}).then(function() {
 });
 ```
 
-`err` format – the same as for `presence` method.
+`err`与`presence` 方法一样的格式.
 
 
-### unsubscribe method of subscription
-
-You can call `unsubscribe` method to unsubscribe from subscription:
+### 订阅后的取消订阅方法
 
 ```javascript
 subscription.unsubscribe();
 ```
 
-### subscribe method of subscription
+### 订阅后的订阅方法
 
-You can restore subscription after unsubscribing calling `.subscribe()` method:
+可以在取消订阅后恢复订阅:
 
 ```javascript
 subscription.subscribe();
 ```
 
-### ready method of subscription
+### 订阅后ready方法
 
-A small drawback of setting event handlers on subscription using `on` method is that event
-handlers can be set after `subscribe` event of underlying subscription already fired. This
-is not a problem in general but can be actual if you use one subscription (i.e. subscription
-to the same channel) from different parts of your javascript application - so be careful.
-
-For this case one extra helper method `.ready(callback, errback)` exists. This method calls
-`callback` if subscription already subscribed and calls `errback` if subscription already
-failed to subscribe with some error (because you subscribed on this channel before). So
-when you want to call subscribe on channel already subscribed before you may find `ready()`
-method useful:
+一般只适用于同时订阅同1个通道但不同的逻辑的情况下:
 
 ```javascript
 var subscription = centrifuge.subscribe("news", function(message) {
@@ -734,47 +704,36 @@ setTimeout(function() {
 }, 5000);
 ```
 
-When called `callback` and `errback` of `ready` method receive the same arguments as
-callback functions for `subscribe` and `error` events of subscription.
+### 批量消息
 
-
-### Message batching
-
-There is also message batching support. It allows to send several messages to server
-in one request - this can be especially useful when connection established via one of
-SockJS polling transports.
-
-You can start collecting messages to send calling `startBatching()` method:
+允许一次性发送多条消息到服务器，特别是在通过SockJS拉取方式时特别有用:
 
 ```javascript
 centrifuge.startBatching();
 ```
 
-When you want to actually send all collected messages to server call `flush()` method:
+当你确实要发送批量消息时要调用`flush()` 方法:
 
 ```javascript
 centrifuge.flush();
 ```
 
-Finally if you don't want batching anymore call `stopBatching()` method:
+最后调用完毕后要进行关闭:
 
 ```javascript
 centrifuge.stopBatching();
 ```
 
-Call `stopBatching(true)` to flush all messages and stop batching:
+调用 `stopBatching(true)`可以清除所有消息并停止批量发送:
 
 ```javascript
 centrifuge.stopBatching(true);
 ```
 
 
-## Private channels
+## 私有通道
 
-If channel name starts with `$` then subscription on this channel will be checked via
-AJAX POST request from javascript client to your web application backend.
-
-You can subscribe on private channel as usual:
+如果通道以`$`开始则表示这是1个私有通道，这样的通道可以象下面这样订阅:
 
 ```javascript
 centrifuge.subscribe('$private', function(message) {
@@ -782,23 +741,12 @@ centrifuge.subscribe('$private', function(message) {
 });
 ```
 
-But in this case client will first check subscription via your backend sending POST request
-to `/centrifuge/auth/` endpoint (by default, can be changed via configuration option
-`authEndpoint`). This request will contain `client` parameter which is your connection
-client ID and `channels` parameter - one or multiple private channels client wants to
-subscribe to. Your server should validate all this subscriptions and return properly
-signed responses.
+这样的订阅将会通过POST请求到你的后台 `/centrifuge/auth/`(可以通过变更Centrifugo设置来变更`authEndpoint`)进行验证. 该请求包括了`client`参数（客户端ID和`channels`参数） ，服务器进行验证后返回相应的内容。另外还有2个公共的方法可以批量订阅多个私有通道: `startAuthBatching`
+和 `stopAuthBatching`. 当调用`startAuthBatching`后，js客户端会进行私有通道批量订阅，除非`stopAuthBatching()`被调用.
 
-There are also two public API methods which can help to subscribe to many private
-channels sending only one POST request to your web application backend: `startAuthBatching`
-and `stopAuthBatching`. When you `startAuthBatching` javascript client will collect
-private subscriptions until `stopAuthBatching()` called – and then send them all at
-once.
-
-Read more about private channels in [special documentation chapter](../mixed/private_channels.md).
+关于私有通道更多请 [查看相关章节](../mixed/private_channels.md).
 
 
-## Connection check
+## 连接检测
 
-Javascript client has support for refreshing connection when `connection_lifetime` option
-set in Centrifugo. See more details in [dedicated chapter](../server/connection_check.md).
+Javascript客户端支持刷新连接，它是依据Centrifugo中设置的`connection_lifetime`参数值，具体可以 [查看相关章节](../server/connection_check.md).

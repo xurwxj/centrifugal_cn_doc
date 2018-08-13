@@ -1,3 +1,3 @@
-# Mixed topics
+# 混合主题
 
-This section contains topics related to both client and server together.
+这部分将同时介绍与客户端和服务器端结合相关的部分.

@@ -1,23 +1,6 @@
-# Ping messages
+# Ping消息
 
-This document describes how Centrifugo works with client-server pings.
+用于保持长连接，从Centrifugo v1.6.0 开始`centrifuge-js`发送定时间隔的ping消息到Centrifugo服务器，只有在连接空闲的时候发送。Javascript客户端库允许你禁用自动ping消息。
 
-In internet environment ping messages required for keeping long-living connections
-alive. Centrifugo is a server that works with such connections - so ping messages is
-what we pay a lot of attention to.
-
-Starting from Centrifugo v1.6.0 `centrifuge-js` sends periodic ping messages to Centrifugo
-automatically. It works in a manner that ping messages only sent when connection is idle - i.e.
-there was no activity for some time (by default 25 seconds). This means that ping messages do
-not introduce significant overhead for busy applications.
-
-Javascript client allows you to disable automatic ping messages - see its documentation.
-
-Client to server pings allow to detect problems with connection and disconnect in case of no
-response from server received in reasonable time.
-
-Centrifugo also sends server to client pings every 25 seconds. In case of raw websocket it's
-a special PING websocket frame, in case of SockJS it's an `h` frame. Server to client pings
-allow to close inactive connections.
-
-In short - if you use default settings - you are ok and don't need to worry.
+客户端到服务器端的ping可以检测连接的问题，而服务器端到客户端的ping（每隔25秒）可以关闭非活动的连接，比如检测到特别的PING websocket桢, 或是SockJS 的`h` 桢. 
+简单说，如果你使用默认设置，你不用去管它。

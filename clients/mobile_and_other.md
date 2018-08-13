@@ -1,40 +1,36 @@
-# Mobile and other clients
+# Mobile及其它客户端
 
-Let's look at available Websocket clients for Centrifugo.
+下面是所有Centrifugo可用的Websocket客户端.
 
-### Native Android client library
+### 原生Android客户端库
 
-[Android client](https://github.com/centrifugal/centrifuge-android) contributed by [Semyon Danilov](https://github.com/SammyVimes).
+[Android客户端](https://github.com/centrifugal/centrifuge-android)，由[Semyon Danilov](https://github.com/SammyVimes)贡献.
 
-There is example in repo which can help to start.
 
-### Native iOS client library
+### 原生iOS客户端库
 
-[iOS client](https://github.com/centrifugal/centrifuge-ios) contributed by [Herman Saprykin](https://github.com/mogol).
+[iOS客户端](https://github.com/centrifugal/centrifuge-ios) ，由[Herman Saprykin](https://github.com/mogol)贡献.
 
-There is [example](https://github.com/centrifugal/centrifuge-ios/tree/develop/Example) in repo which can help to start.
+[使用样例](https://github.com/centrifugal/centrifuge-ios/tree/develop/Example) .
 
-### iOS and Android client library using Gomobile project
+### 使用Gomobile项目的iOS和Android客户端库
 
-As iOS and Android clients supported by community members they unfortunately lack some 
-features. Your help is really appreciated to make native mobile clients better.
+[centrifuge-mobile](https://github.com/centrifugal/centrifuge-mobile)客户端库是基于Gomobile的完整功能实现. 
 
-As option we have full-featured [centrifuge-mobile](https://github.com/centrifugal/centrifuge-mobile) client for mobile platforms built on top of [gomobile]() project. 
+Gomobile需要一定的专业技术积累，所以需要去了解后再基于此开发，当你需要定制开发时.
 
-Gomobile is experimental technology so this library considered experimental too. See it's readme for more information.
+### Go客户端库
 
-### Go client
+ [Go客户端库](https://github.com/centrifugal/centrifuge-go).
 
-Go client library located [on Github](https://github.com/centrifugal/centrifuge-go).
+注意，也可以使用`centrifuge-mobile`到Go代码中.`
 
-There are some examples in repo which can help you to start. Note that you can also use `centrifuge-mobile` from Go code.`
+### Python Asyncio客户端库
 
-### Python Asyncio client
+[Centrifuge-python](https://github.com/centrifugal/centrifuge-python)客户端库当前还在开发中，但实际上已经可以很好与Centrifugo配合了.
 
-[Centrifuge-python](https://github.com/centrifugal/centrifuge-python) client is a work in progress - there was no PYPI release yet. But it already works pretty well with Centrifugo.
+### Perl客户端库
 
-### Perl client
-
-Benoît Chauvet created a repo with a [Perl client](https://github.com/Orabig/centrifugo-perl-client) on top of Anyevent - it's a work in progress at moment but still can be very useful.
+Benoît Chauvet在Anyevent基础上创建了[Perl客户端库](https://github.com/Orabig/centrifugo-perl-client) 当前还在开发中，但实际上已经可以很好与Centrifugo配合了.
 
 

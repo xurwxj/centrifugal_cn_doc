@@ -1,32 +1,27 @@
-# Insecure modes
+# 非安全模式
 
-You can run Centrifugo in insecure client mode.
+你可以让Centrifugo运行在非安全模式，但这个模式下会.
 
-Insecure client mode:
+* 禁用客户端时间戳和token检查
+* 允许匿名接入所有通道
+* 允许客户端随意发布到任何通道
+* 忽略连接检测
 
-* disables client timestamp and token check
-* allows anonymous access for all channels
-* allows client to publish into all channels
-* suppresses connection check
+一般只适用于个人或演示场景，生产环境除非你清楚你在做什么.
 
-This allows to use Centrifugo and centrifuge javascript client as a quick and simple
-solution when making real-time demos, presentations, testing ideas etc. But this mode
-is mostly for personal and demonstration uses - you should never turn this mode on
-in production until you really want it to be there.
+### 服务器端
 
-### on server side
-
-To start Centrifugo in this mode use `--insecure` flag:
+启动Centrifugo时使用`--insecure`参数:
 
 ```bash
 centrifuge --config=config.json --insecure
 ```
 
-You can also set `insecure` option in configuration file to do the same.
+也可以在配置文件中启用`insecure`.
 
-### on client side
+### 客户端
 
-When using insecure mode you can create client connection in this way:
+连接样例:
 
 ```javascript
 var centrifuge = new Centrifuge({
@@ -35,44 +30,28 @@ var centrifuge = new Centrifuge({
 });
 ```
 
-I.e. without `token`, `user` and `timestamp` parameters. So you can connect to
-Centrifugo without any backend code.
+[演示代码](https://github.com/centrifugal/centrifuge/tree/master/examples/insecure_mode) 
 
-Look at [demo](https://github.com/centrifugal/centrifuge/tree/master/examples/insecure_mode) to
-see insecure mode in action.
+# 非安全的HTTP API方式
 
-# Insecure HTTP API mode
-
-Allows to turn of checking HTTP API request API sign. This can be useful if you don't want
-to sign every API request - for example if you closed API endpoint with firewall or you want 
-to play with API commands from command line using CURL.
-
-To start Centrifugo in this mode use `--insecure_api` flag:
+启动Centrifugo时带`--insecure_api`参数:
 
 ```bash
 centrifugo --config=config.json --insecure_api
 ```
 
-# Insecure admin mode (new in v1.3.0, changed in v1.6.0)
+# 非安全的管理模式(v1.3.0起应用, v1.6.0时进行了调整)
 
-Allows run Centrifugo in insecure admin mode - in this case you don't need to set `admin_password` and `admin_secret`
-for admin endpoints in config - all admin endpoints access won't require authentication at all.
+允许不设置`admin_password`和 `admin_secret`就进入管理界面，注意 **应该仅限于开发或个人小环境时使用**.
 
-Note that this is **only for development or if you protected web interface with firewall rules in production**.
-
-To start Centrifugo in this insecure mode run:
+启动Centrifugo时带`--insecure_admin`参数:
 
 ```bash
 centrifugo --config=config.json --insecure_admin
 ```
 
-If this mode enabled and you are using web interface **you will be logged in automatically without any password**. This
-can be useful if you want to hide Centrifugo web interface behind you own company authentication proxy and don't want to
-have extra password for Centrifugo:
-
 ```bash
 centrifugo --config=config.json --insecure_admin --web
 ```
 
-Again: every insecure mode described here potentially dangerous and you must understand how to protect your Centrifugo
-by firewall rules this before turning on insecure modes in production.
+再次提醒: 不管任何哪种非安全模式，请不要在生产环境使用.

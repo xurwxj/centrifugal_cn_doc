@@ -1,18 +1,8 @@
-# Private channels in browser client
+# 浏览器客户端的私有通道
 
-All channels starting with `$` considered private. Subscribing on private channel in
-javascript browser client does not differ from subscribing on usual channels. But you should
-implement an endpoint in your web application that will check if current user can subscribe
-on certain private channels.
+所有`$`开头的通道都被认为是私有通道，默认javascript客户端会发送AJAX POST请求到`/centrifuge/auth/`，你可以通过改变设置(`authEndpoint` 和 `authHeaders`)来调整url.
 
-By default javascript client will send AJAX POST request to `/centrifuge/auth/` url. You
-can change this address and add additional request headers via js client initialization
-options (`authEndpoint` and `authHeaders`).
-
-POST request is JSON object including two keys: `client` and `channels`. Client is a string with
-current client ID and channels is array with one or more channels current user wants to subscribe to.
-
-I.e sth like this:
+POST请求是1个JSON 对象，主要包括2个内容: `client`和 `channels`. Client是当前客户端ID的字符串，channels是当前客户端订阅的通道信息:
 
 ```javascript
 {
@@ -21,11 +11,7 @@ I.e sth like this:
 }
 ```
 
-I think it's simplier to explain on example.
-
-Lets imagine that client wants to subscribe on two private channels: ``$one`` and ``$two``.
-
-Here is a javascript code to subscribe on them:
+假设客户端订阅2个私有通道: ``$one`` 和 ``$two``:
 
 ```javascript
 centrifuge.subscribe('$one', function(message) {
@@ -37,9 +23,7 @@ centrifuge.subscribe('$two', function(message) {
 });
 ```
 
-In this case Centrifuge will send two separate POST requests to your web app. There is an
-option to batch this requests into one using `startAuthBatching` and `stopAuthBatching`
-methods. Like this:
+一般来说Centrifuge会发送2个分开的POST请求，当然 也可以使用`startAuthBatching` 和 `stopAuthBatching`来一次性发送:
 
 ```javascript
 centrifuge.startAuthBatching();
@@ -55,7 +39,7 @@ centrifuge.subscribe('$two', function(message) {
 centrifuge.stopAuthBatching();
 ```
 
-In this case one POST request with 2 channels in `channels` parameter will be sent.
+当一次性发送时，发送的内容结构就如：
 
 ```javascript
 {
@@ -64,10 +48,7 @@ In this case one POST request with 2 channels in `channels` parameter will be se
 }
 ```
 
-What you should return in response - JSON object which contains channels as keys. Every channel key
-should have a value containing object with sign parameters.
-
-If client allowed to subscribe on channel then response JSON will look like this:
+而返回值则如下:
 
 ```
 {
@@ -78,15 +59,12 @@ If client allowed to subscribe on channel then response JSON will look like this
 }
 ```
 
-* `sign` – private channel subscription sign
-* `info` – optional JSON string to be used as `channel_info` (only useful when clients
-    allowed to publish messages directly).
+* `sign` – 私有通道的订阅签名
+* `info` – 用于客户端发送消息的`channel_info` ，一般是没有用途的.
 
-See chapter [Tokens and Signatures](../server/tokens_and_signatures.md) to see how to create `sign` string.
+查看[Tokens和签名](../server/tokens_and_signatures.md) 来查看如何创建签名
 
-Note, that private channel sign creation already implemented in out API clients.
-
-If client not allowed to subscribe on channel then return this:
+如果不允许订阅则返回:
 
 ```
 {
@@ -96,10 +74,7 @@ If client not allowed to subscribe on channel then return this:
 }
 ```
 
-You can also just return 403 status code for the whole response if client is not allowed to
-subscribe on all channels.
-
-Let's look at simplified example for Tornado how to implement auth endpoint:
+下面是基于Tornado实现的验证方式:
 
 ```python
 from cent.core import generate_channel_sign
@@ -137,9 +112,7 @@ class CentrifugeAuthHandler(tornado.web.RequestHandler):
         self.write(json.dumps(to_return))
 ```
 
-In this example we allow user to subscribe on any private channel. If you want to
-reject subscription - then you can add "status" key and set it to something not
-equal to 200, for example 403:
+下面是403禁用的代码样例:
 
 ```python
 from cent.core import generate_channel_sign
@@ -173,7 +146,7 @@ class CentrifugeAuthHandler(tornado.web.RequestHandler):
         self.write(json.dumps(to_return))
 ```
 
-If user deactivated in your application then you can just return 403 Forbidden response:
+如果用户不活跃时，可以直接返回403:
 
 ```python
 from cent.core import generate_channel_sign
@@ -187,8 +160,6 @@ class CentrifugeAuthHandler(tornado.web.RequestHandler):
         raise tornado.web.HTTPError(403)
 ```
 
-This will prevent client from subscribing to any private channel.
+这将阻止用户订阅任何私有通道.
 
-If you are developing in PHP (and especially if you use Laravel framework) then
-[this gist](https://gist.github.com/Malezha/a9bdfbddee15bfd624d4) can help you working
-with private channel subscriptions.
+如果你使用PHP (特别是使用Laravel框架)时，可以参照[该代码样例](https://gist.github.com/Malezha/a9bdfbddee15bfd624d4) .

@@ -1,33 +1,30 @@
-# Admin web interface
+# Admin的网页管理界面
 
-Admin web interface located in its [own repo](https://github.com/centrifugal/web). This
-is ReactJS based single-page application. But Centrifugo server comes with this interface builtin - so in most cases you don't need to download it separately.
+Admin的网页管理界面[代码库](https://github.com/centrifugal/web)，1个基于ReactJS的单页应用，但内嵌在Centrifugo服务中，不需要再单独下载.
 
-[See demo on Heroku](https://centrifugo.herokuapp.com) (password `demo`) to see it in action.
+[Heroku上的演示站点](https://centrifugo.herokuapp.com) (密码 `demo`) 可以了解详细的使用场景.
 
-![Admin web interface](https://raw.githubusercontent.com/centrifugal/documentation/master/assets/images/web.gif)
+![Admin的网页管理界面截图](https://raw.githubusercontent.com/centrifugal/documentation/master/assets/images/web.gif)
 
-It can:
+功能有:
 
-* show current server general information and statistics from server nodes.
-* monitor messages published in channels in real-time (`watch` option for channel must be turned on).
-* call `publish`, `unsubscribe`, `disconnect`, `history`, `presence`, `channels`, `stats` server API commands. For
-    `publish` command Ace JSON editor helps to write JSON to send into channel.
+* 显示当前服务器的常规信息和节点统计.
+* 实时监控通道的消息(通道的`watch`参数必须启用).
+* 调用 `publish`, `unsubscribe`, `disconnect`, `history`, `presence`, `channels`, `stats`等命令.
 
-To enable web you must run `centrifugo` with `--web` flag.
+要启用它，需要在调用`centrifugo`时带 `--web`参数.
 
 ```
 centrifugo --config=config.json --admin --web
 ```
 
-`--admin` enables admin websocket endpoint web interface uses.
+`--admin`启用管理websocket用于Admin的网页管理界面使用.
 
-`--web` tells Centrifugo that it must serve embedded web interface.
+`--web`告诉Centrifugo启用Admin的网页管理界面.
 
-**Note, that you can use only `--web` option to enable both web interface and admin websocket endpoint.
-This is because web interface can't work without admin websocket.**
+**注意，你可以仅使用`--web`同时启用上述2项.**
 
-Also you must additionally set 2 options in config: `admin_password` and `admin_secret`.
+当然，你需要额外设置2个参数: `admin_password` 和 `admin_secret`.
 
 `config.json`
 
@@ -39,26 +36,16 @@ Also you must additionally set 2 options in config: `admin_password` and `admin_
 }
 ```
 
-* `admin_password` – this is a password to log into admin web interface
-* `admin_secret` - this is a secret key to sign authorization token used to call admin API endpoints.
+* `admin_password` – 登录Admin的网页管理界面的密码
+* `admin_secret` - 在Admin的网页管理界面调用api的加密串.
 
-Make both strong and keep in secret.
-
-After setting this in config go to http://localhost:8000 (by default) - and you should see web interface. Although there is `password` based authentication a good advice is to protect web interface by firewall rules in production. Also as web interface uses `/socket` Centrifugo websocket endpoint - you better protect that endpoint by firewall too.
-
-If you don't want to use embedded web interface you can specify path to your own web interface directory:
+你也可以指定自己的Admin的网页管理界面:
 
 ```
 centrifugo --config=config.json --admin --web --web_path=/path/to/web/app
 ```
 
-This can be useful if you want to modify official web interface in some way.
-
-There is also an option to run Centrifugo in insecure admin mode (new in v1.3.0) - in this case you
-don't need to set `admin_password` and `admin_secret` in config - if you use web interface you will
-be logged in automatically without any password. Note that this is only for development or if you
-protected admin websocket endpoint and web interface with firewall rules in production. To start
-Centrifugo with web interface in insecure admin mode run:
+当被防火墙拦截或是遇到问题时，也可以使用非安全方式（不建议）:
 
 ```
 centrifugo --config=config.json --admin --insecure_admin --web

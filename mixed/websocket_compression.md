@@ -1,25 +1,5 @@
-# Websocket compression
+# Websocket压缩
 
-This is an experimental feature for raw websocket endpoint - `permessage-deflate` compression for
-websocket messages. Btw look at [great article](https://www.igvita.com/2013/11/27/configuring-and-optimizing-websocket-compression/) about websocket compression.
+这里有个专业特性`permessage-deflate`可以用于websocket消息压缩，可以看下[好文章](https://www.igvita.com/2013/11/27/configuring-and-optimizing-websocket-compression/) .之所以是专业特性，是因为在[Gorilla Websocket](https://github.com/gorilla/websocket) 库中它本身就是一个需要专业知识积累才能使用的.
 
-We consider this experimental because this websocket compression is experimental in [Gorilla Websocket](https://github.com/gorilla/websocket) library that Centrifugo uses internally.
-
-Websocket compression can reduce amount of traffic travelling over wire. But keep in mind that
-enabling websocket compression will result in much slower Centrifugo performance and more
-memory usage - depending on your message rate this can be noticeable.
-
-To enable websocket compression for raw websocket endpoint set `websocket_compression: true` in
-configuration file. After this clients that support permessage-deflate will negotiate compression
-with server automatically. Note that enabling compression does not mean that every connection will
-use it - this depends on client support for this feature.
-
-Another option is `websocket_compression_min_size`. Default 0. This is a minimal size of message
-in bytes for which we use `deflate` compression when writing it to client's connection. Default
-value `0` means that we will compress all messages when `websocket_compression` enabled and
-compression support negotiated with client.
-
-It's also possible to control websocket compression level defined at [compress/flate](https://golang.org/pkg/compress/flate/#NewWriter)
-By default when compression with client negotiated Centrifugo uses compression level 1 (BestSpeed).
-If you want to set custom compression level use `websocket_compression_level` (new in Centrifugo v1.6.4)
-configuration option.
+Websocket压缩可以减少流量，但在Centrifugo运行性能上会降低，要启用它，可以在配置文件中设置`websocket_compression: true`，但要注意启用后并不意味着每个连接或消息都会使用，那个取决于客户端的支持度. 另外1个参数是`websocket_compression_min_size`. 默认是0.这个值表示会根据客户端的支持程度最大可能去压缩每个消息.也可以根据[compress/flate级别](https://golang.org/pkg/compress/flate/#NewWriter)来指定压缩级别，如果要设置的话，可以使用`websocket_compression_level` (Centrifugo v1.6.4后的版本支持)参数来设置.
